@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Aadelice - Douceurs & Gourmandises Dakar</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome pour les icônes -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Quicksand:wght@400;500;700&display=swap"
+        rel="stylesheet">
+    <link rel="shortcut icon" href="images/Aadelice_logo.png" type="image/x-icon">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/cart.css">
+    <style>
+        /* Filtres de catégories */
+        .category-filters {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        .category-filter-btn {
+            padding: 8px 20px;
+            border-radius: 50px;
+            border: 2px solid var(--primary);
+            background-color: white;
+            color: var(--primary);
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .category-filter-btn:hover,
+        .category-filter-btn.active {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        /* Badge de poids */
+        .weight-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: var(--secondary);
+            color: white;
+            padding: 3px 10px;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            z-index: 1;
+        }
+
+        /* Localisation */
+        .location-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background-color: var(--secondary);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            margin-left: 10px;
+        }
+
+        .fcf-price {
+            color: var(--primary);
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+
+        .fcf-symbol {
+            font-size: 1.2rem;
+        }
+
+        /* Login Admin */
+        .admin-login-modal .modal-content {
+            border-radius: 15px;
+        }
+
+        .admin-login-modal .modal-header {
+            background-color: var(--primary);
+            color: white;
+            border-radius: 15px 15px 0 0;
+        }
+
+        .login-logo {
+            font-family: 'Quicksand', sans-serif;
+            font-weight: 700;
+            font-size: 1.8rem;
+            color: var(--primary);
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .login-logo span {
+            color: var(--secondary);
+        }
+
+        .btn-admin-login {
+            background-color: var(--tertiary);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 10px 20px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-admin-login:hover {
+            background-color: #222;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Style pour le bouton tertiaire */
+        .btn-tertiary-custom {
+            background-color: var(--tertiary);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-tertiary-custom:hover {
+            background-color: #333;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Animation d'ajout au panier */
+        @keyframes addToCartAnimation {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.1);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .added-to-cart {
+            animation: addToCartAnimation 0.3s ease;
+        }
+
+        /* Style pour le compteur du panier */
+        .cart-icon {
+            position: relative;
+            text-decoration: none;
+            color: var(--tertiary);
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+        }
+
+        .cart-icon:hover {
+            color: var(--primary);
+        }
+
+        .cart-count {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background-color: var(--primary);
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+
+        /* Style pour les produits */
+        .product-category {
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white sticky-top shadow-sm py-2">
+        <div class="container">
+            <!-- Logo avec image et arrière-plan rose -->
+            <a class="navbar-brand d-flex align-items-center" href="index.html">
+                <div class="logo-container me-2">
+                    <div class="logo-circle">
+                        <img src="images/Aadelice_logo.png" alt="Logo Aadelice">
+                    </div>
+                </div>
+            </a>
+
+            <!-- Bouton menu mobile -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <!-- Menu navigation -->
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav mx-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="index.html">
+                            <i class="fas fa-home d-lg-none me-2"></i>Accueil
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#produits">
+                            <i class="fas fa-candy-cane d-lg-none me-2"></i>Bonbons
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#categories">
+                            <i class="fas fa-tags d-lg-none me-2"></i>Catégories
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#about">
+                            <i class="fas fa-info-circle d-lg-none me-2"></i>À propos
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#contact">
+                            <i class="fas fa-envelope d-lg-none me-2"></i>Contact
+                        </a>
+                    </li>
+                </ul>
+
+                <!-- Actions utilisateur -->
+                <div class="d-flex align-items-center">
+                    <a href="cart.html" class="cart-icon me-4 position-relative">
+                        <i class="fas fa-shopping-bag"></i>
+                        <span class="cart-count">0</span>
+                    </a>
+                    <button class="btn btn-admin-login" data-bs-toggle="modal" data-bs-target="#adminLoginModal">
+                        <i class="fas fa-lock me-2"></i>Admin
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    <h1 class="hero-title">Découvrez la <span>douceur</span> sénégalaise</h1>
+                    <p class="hero-subtitle">Aadelice vous propose une sélection exclusive de bonbons à Dakar. Des
+                        saveurs acidulées, sucrées et fruitées pour émerveiller vos papilles. Livraison rapide dans tout
+                        Dakar!</p>
+                    <div class="d-flex flex-wrap gap-3">
+                        <a href="#produits" class="btn btn-primary-custom">Explorer la collection</a>
+                        <a href="#contact" class="btn btn-secondary-custom">
+                            <i class="fas fa-phone me-2"></i>Nous contacter
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="position-relative">
+                        <img src="images/hero-image.jpg" class="img-fluid rounded-3 shadow-lg" alt="Bonbons colorés">
+                        <div class="position-absolute bottom-0 start-0 bg-white p-3 rounded-3 shadow m-3">
+                            <div class="d-flex align-items-center">
+                                <div class="bg-primary rounded-circle p-2 me-2">
+                                    <i class="fas fa-truck text-white"></i>
+                                </div>
+                                <div>
+                                    <p class="mb-0 fw-bold">Livraison rapide Dakar</p>
+                                    <p class="mb-0 small text-muted">À partir de 1000 FCFA</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Produits populaires avec filtres -->
+    <section class="py-5" id="produits">
+        <div class="container">
+            <h2 class="section-title">Nos délices populaires</h2>
+
+            <!-- Filtres de catégories -->
+            <div class="category-filters">
+                <button class="category-filter-btn active" data-filter="all">Tous</button>
+                <button class="category-filter-btn" data-filter="Sucres">Sucrés</button>
+                <button class="category-filter-btn" data-filter="Sans sucre">Sans sucre</button>
+                <button class="category-filter-btn" data-filter="Box">Box</button>
+                <button class="category-filter-btn" data-filter="Boisson">Boissons</button>
+                <button class="category-filter-btn" data-filter="Divers">Divers</button>
+            </div>
+
+            <div class="row g-4" id="productsContainer">
+                <!-- Les produits seront chargés dynamiquement ici -->
+            </div>
+
+            <div class="text-center mt-5">
+                <a href="#contact" class="btn btn-secondary-custom">Voir tous nos produits</a>
+                <a href="tel:+221771635858" class="btn btn-primary-custom ms-3">
+                    <i class="fas fa-phone me-2"></i>Commander par téléphone
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Catégories -->
+    <section class="py-5 bg-light" id="categories">
+        <div class="container">
+            <h2 class="section-title">Nos Catégories</h2>
+            <div class="row g-4">
+                <div class="col-md-6 col-lg-3">
+                    <div class="feature-card">
+                        <div class="feature-icon feature-icon-1">
+                            <i class="fas fa-candy-cane"></i>
+                        </div>
+                        <h4 class="feature-title">Sucrés</h4>
+                        <p>Des bonbons classiques pour les amateurs de sensations sucrées réconfortantes.</p>
+                        <a href="#" class="text-primary fw-bold" data-filter="Sucres">Découvrir →</a>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="feature-card">
+                        <div class="feature-icon feature-icon-2">
+                            <i class="fas fa-apple-alt"></i>
+                        </div>
+                        <h4 class="feature-title">Sans sucre</h4>
+                        <p>Des alternatives diététiques pour profiter des bonbons sans culpabilité.</p>
+                        <a href="#" class="text-primary fw-bold" data-filter="Sans sucre">Découvrir →</a>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="feature-card">
+                        <div class="feature-icon" style="background-color: #9C27B0;">
+                            <i class="fas fa-gift"></i>
+                        </div>
+                        <h4 class="feature-title">Box Cadeaux</h4>
+                        <p>Des assortiments variés pour offrir ou se faire plaisir en grande quantité.</p>
+                        <a href="#" class="text-primary fw-bold" data-filter="Box">Découvrir →</a>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="feature-card">
+                        <div class="feature-icon" style="background-color: #2196F3;">
+                            <i class="fas fa-wine-bottle"></i>
+                        </div>
+                        <h4 class="feature-title">Boissons</h4>
+                        <p>Des sodas et boissons aromatisées aux saveurs de bonbons préférés.</p>
+                        <a href="#" class="text-primary fw-bold" data-filter="Boisson">Découvrir →</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- À propos -->
+    <section class="py-5" id="about">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    <h2 class="section-title text-start">À propos d'Aadelice Dakar</h2>
+                    <p class="mb-4">Bienvenue chez <strong>Aadelice</strong>, votre boutique de bonbons préférée à Dakar
+                        Ouest Foire !</p>
+                    <p>Depuis notre création, nous nous engageons à vous offrir les meilleures douceurs du marché. Notre
+                        sélection rigoureuse comprend des produits de qualité, adaptés à tous les goûts et besoins.</p>
+
+                    <div class="mt-4">
+                        <h5>Pourquoi choisir Aadelice ?</h5>
+                        <ul class="list-unstyled">
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i> Produits frais et de qualité
+                                supérieure</li>
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i> Large choix de catégories
+                            </li>
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i> Livraison rapide dans Dakar
+                            </li>
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i> Service client réactif</li>
+                            <li><i class="fas fa-check text-success me-2"></i> Prix compétitifs en FCFA</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="position-relative">
+                        <img src="images/about.jpg" class="img-fluid rounded-3 shadow-lg" alt="Boutique Aadelice">
+                        <div class="position-absolute bottom-0 start-0 bg-white p-3 rounded-3 shadow m-3">
+                            <div class="d-flex align-items-center">
+                                <div class="bg-primary rounded-circle p-2 me-2">
+                                    <i class="fas fa-store text-white"></i>
+                                </div>
+                                <div>
+                                    <p class="mb-0 fw-bold">Dakar Ouest Foire</p>
+                                    <p class="mb-0 small text-muted">Ouvert 7j/7</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact -->
+    <section class="newsletter-section" id="contact">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8 text-center">
+                    <h2 class="newsletter-title">Contactez-nous !</h2>
+                    <p class="mb-4">Vous avez des questions ou souhaitez passer commande ? Contactez-nous directement
+                        par téléphone ou email.</p>
+
+                    <div class="row g-4 mt-4">
+                        <div class="col-md-6">
+                            <div class="feature-card h-100">
+                                <div class="feature-icon" style="background-color: var(--tertiary);">
+                                    <i class="fas fa-envelope"></i>
+                                </div>
+                                <h4>Email</h4>
+                                <p>Envoyez-nous un email pour toute demande ou commande.</p>
+                                <a href="mailto:contact@aadelice.sn" class="btn btn-tertiary-custom w-100">
+                                    <i class="fas fa-envelope me-2"></i>Écrire un email
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="feature-card h-100">
+                                <div class="feature-icon" style="background-color: var(--primary);">
+                                    <i class="fas fa-phone"></i>
+                                </div>
+                                <h4>Téléphone</h4>
+                                <p>Appelez-nous pour vos commandes ou renseignements.</p>
+                                <a href="tel:+221771635858" class="btn btn-primary-custom w-100">
+                                    <i class="fas fa-phone me-2"></i>Appeler maintenant
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-5">
+                        <h5>Informations de livraison</h5>
+                        <p class="mb-3">Livraison offerte à partir de 10.000 FCFA d'achat dans Dakar.</p>
+                        <p class="small">Zone de livraison : Dakar et ses environs • Horaires : 9h-19h</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 mb-4">
+                    <div class="footer-logo">Aa<span>delice</span></div>
+                    <p>Votre boutique de bonbons préférée à Dakar Ouest Foire. Des douceurs pour tous les goûts !</p>
+                    <div class="social-icons">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="mailto:contact@aadelice.sn"><i class="fas fa-envelope"></i></a>
+                        <a href="#"><i class="fab fa-tiktok"></i></a>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-4 mb-4">
+                    <h5 class="footer-heading">Boutique</h5>
+                    <ul class="footer-links">
+                        <li><a href="#produits">Tous les bonbons</a></li>
+                        <li><a href="#categories">Catégories</a></li>
+                        <li><a href="#about">À propos</a></li>
+                        <li><a href="#contact">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-3 col-md-4 mb-4">
+                    <h5 class="footer-heading">Informations</h5>
+                    <ul class="footer-links">
+                        <li><a href="#">Livraison</a></li>
+                        <li><a href="#">Moyens de paiement</a></li>
+                        <li><a href="#">FAQ</a></li>
+                        <li><a href="#">Conditions générales</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-3 col-md-4 mb-4">
+                    <h5 class="footer-heading">Contact</h5>
+                    <ul class="footer-links">
+                        <li><i class="fas fa-map-marker-alt me-2"></i> Dakar Ouest Foire, Sénégal</li>
+                        <li><i class="fas fa-phone me-2"></i> +221 77 163 58 58</li>
+                        <li><i class="fas fa-envelope me-2"></i> Email: contact@aadelice.sn</li>
+                        <li><i class="fas fa-clock me-2"></i> Lundi-Dimanche: 9h-20h</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2023 Aadelice Dakar. Tous droits réservés. | <a href="#" class="text-white">Mentions
+                        légales</a> | <a href="#" class="text-white">Politique de confidentialité</a></p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modal Login Admin -->
+    <div class="modal fade admin-login-modal" id="adminLoginModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-lock me-2"></i>Connexion Admin</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="login-logo">Aa<span>delice</span> Admin</div>
+                    <form id="adminLoginForm">
+                        <div class="mb-3">
+                            <label for="adminUsername" class="form-label">Nom d'utilisateur</label>
+                            <input type="text" class="form-control" id="adminUsername" required>
+                        </div>
+                        <div class="mb-4">
+                            <label for="adminPassword" class="form-label">Mot de passe</label>
+                            <input type="password" class="form-control" id="adminPassword" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary-custom w-100">Se connecter</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle avec Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Gestion d'authentification admin -->
+    <script src="js/auth.js"></script>
+
+    <!-- JavaScript personnalisé -->
+    <script>
+        // ============================================
+        // GESTION DES PRODUITS DEPUIS LOCALSTORAGE
+        // ============================================
+
+        // Fonction pour initialiser des produits par défaut
+        function initializeDefaultProducts() {
+            const productsData = JSON.parse(localStorage.getItem('aadeliceProducts'));
+            
+            // Si pas de produits ou liste vide, créer des produits par défaut
+            if (!productsData || !productsData.products || productsData.products.length === 0) {
+                const defaultProducts = {
+                    products: [
+                        {
+                            id: 1,
+                            name: "Hitschies Acidulés Halal",
+                            category: "Sucres",
+                            price: 1500,
+                            stock: 50,
+                            weight: "100g",
+                            image: "https://images.unsplash.com/photo-1582058091505-f87a2e55a40f?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
+                            rating: 4.5,
+                            reviews: 48,
+                            description: "Bonbons acidulés halal aux saveurs fruitées"
+                        },
+                        {
+                            id: 5,
+                            name: "Soda Bonbons Acidulés",
+                            category: "Boisson",
+                            price: 1200,
+                            stock: 30,
+                            weight: "33cl",
+                            image: "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
+                            rating: 4,
+                            reviews: 28,
+                            description: "Boisson gazeuse aux saveurs de bonbons acidulés"
+                        },
+                        {
+                            id: 6,
+                            name: "Dragées Cadeau Spécial",
+                            category: "Divers",
+                            price: 3500,
+                            stock: 20,
+                            weight: "200g",
+                            image: "https://images.unsplash.com/photo-1532117182044-031e7cd916ee?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
+                            rating: 4.5,
+                            reviews: 35,
+                            description: "Assortiment de dragées pour cadeaux spéciaux"
+                        },
+                        {
+                            id: 7,
+                            name: "Box Familiale Maxi",
+                            category: "Box",
+                            price: 12000,
+                            stock: 15,
+                            weight: "1kg",
+                            image: "https://images.unsplash.com/photo-1563805042-7684c019e1cb?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
+                            rating: 5,
+                            reviews: 45,
+                            description: "Grande box familiale avec assortiment varié"
+                        },
+                        {
+                            id: 8,
+                            name: "Chocolat Diététique",
+                            category: "Sans sucre",
+                            price: 2500,
+                            stock: 25,
+                            weight: "100g",
+                            image: "https://images.unsplash.com/photo-1578985545062-69928b1d9587?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
+                            rating: 4,
+                            reviews: 39,
+                            description: "Chocolat sans sucre pour les régimes diététiques"
+                        }
+                    ]
+                };
+                
+                localStorage.setItem('aadeliceProducts', JSON.stringify(defaultProducts));
+                console.log('Produits par défaut initialisés');
+                return true;
+            }
+            
+            return false;
+        }
+
+        // Fonction pour obtenir la couleur d'une catégorie
+        function getCategoryColor(category) {
+            const colors = {
+                'Sucres': 'var(--primary)',
+                'Sans sucre': 'var(--secondary)',
+                'Box': '#9C27B0',
+                'Boisson': '#2196F3',
+                'Divers': '#E6007E'
+            };
+            return colors[category] || 'var(--primary)';
+        }
+
+        // Fonction pour générer les étoiles de notation
+        function generateRatingStars(rating) {
+            let stars = '';
+            const fullStars = Math.floor(rating);
+            const hasHalfStar = rating % 1 >= 0.5;
+            
+            for (let i = 0; i < fullStars; i++) {
+                stars += '<i class="fas fa-star"></i>';
+            }
+            
+            if (hasHalfStar) {
+                stars += '<i class="fas fa-star-half-alt"></i>';
+            }
+            
+            const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+            for (let i = 0; i < emptyStars; i++) {
+                stars += '<i class="far fa-star"></i>';
+            }
+            
+            return stars;
+        }
+
+        // Fonction pour charger et afficher les produits
+        function loadProductsFromStorage() {
+            const container = document.getElementById('productsContainer');
+            if (!container) {
+                console.error('Conteneur de produits non trouvé');
+                return;
+            }
+
+            // Charger les produits depuis localStorage
+            const productsData = JSON.parse(localStorage.getItem('aadeliceProducts')) || { products: [] };
+            const products = productsData.products || [];
+
+            console.log('Produits chargés:', products.length, 'produits');
+
+            // Vider le conteneur
+            container.innerHTML = '';
+
+            if (products.length === 0) {
+                container.innerHTML = `
+                    <div class="col-12 text-center py-5">
+                        <i class="fas fa-candy-cane fa-3x text-muted mb-3"></i>
+                        <h4 class="text-muted">Aucun produit disponible</h4>
+                        <p>Les produits seront bientôt ajoutés.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Générer chaque produit
+            products.forEach(product => {
+                const ratingStars = generateRatingStars(product.rating || 4);
+                const reviewsCount = product.reviews || Math.floor(Math.random() * 50) + 10;
+                const categoryColor = getCategoryColor(product.category);
+
+                const productHTML = `
+                    <div class="col-md-6 col-lg-4 col-xl-3 product-item" data-category="${product.category}">
+                        <div class="product-card">
+                            <div class="weight-badge">${product.weight || '100g'}</div>
+                            <img src="${product.image || 'https://via.placeholder.com/300x200?text=Aadelice'}" 
+                                 class="product-image" 
+                                 alt="${product.name}"
+                                 onerror="this.src='https://via.placeholder.com/300x200?text=Aadelice'">
+                            <div class="p-3">
+                                <div class="product-category" style="color: ${categoryColor};">${product.category}</div>
+                                <h5 class="product-title">${product.name}</h5>
+                                <div class="product-rating">
+                                    ${ratingStars}
+                                    <span>(${reviewsCount})</span>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="fcf-price">${(product.price || 0).toLocaleString('fr-FR')} <span class="fcf-symbol">FCFA</span></div>
+                                    <button class="btn btn-add-to-cart" 
+                                            data-id="${product.id}" 
+                                            data-name="${product.name}"
+                                            data-price="${product.price || 0}"
+                                            data-image="${product.image || ''}"
+                                            data-weight="${product.weight || '100g'}">
+                                        <i class="fas fa-cart-plus me-2"></i>Ajouter
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                container.innerHTML += productHTML;
+            });
+
+            // Réinitialiser les filtres
+            initProductFilters();
+            
+            // Réinitialiser les événements d'ajout au panier
+            initAddToCartEvents();
+        }
+
+        // Fonction pour initialiser les filtres de produits
+        function initProductFilters() {
+            document.querySelectorAll('.category-filter-btn').forEach(button => {
+                // Supprimer les anciens événements
+                button.removeEventListener('click', handleFilterClick);
+                // Ajouter le nouvel événement
+                button.addEventListener('click', handleFilterClick);
+            });
+
+            function handleFilterClick() {
+                const filter = this.dataset.filter;
+
+                // Mettre à jour le bouton actif
+                document.querySelectorAll('.category-filter-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                this.classList.add('active');
+
+                // Filtrer les produits
+                document.querySelectorAll('.product-item').forEach(item => {
+                    if (filter === 'all' || item.dataset.category === filter) {
+                        item.style.display = 'block';
+                        setTimeout(() => {
+                            item.style.opacity = '1';
+                        }, 50);
+                    } else {
+                        item.style.opacity = '0';
+                        setTimeout(() => {
+                            item.style.display = 'none';
+                        }, 300);
+                    }
+                });
+            }
+        }
+
+        // Fonction pour initialiser les événements d'ajout au panier
+        function initAddToCartEvents() {
+            document.querySelectorAll('.btn-add-to-cart').forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    const id = parseInt(this.dataset.id);
+                    const name = this.dataset.name;
+                    const price = parseInt(this.dataset.price);
+                    const image = this.dataset.image;
+                    const weight = this.dataset.weight;
+                    const productCard = this.closest('.product-card');
+                    
+                    // Extraire l'image si non fournie dans data-image
+                    let finalImage = image;
+                    if (!finalImage) {
+                        const imageElement = productCard.querySelector('.product-image');
+                        finalImage = imageElement ? imageElement.src : '';
+                    }
+                    
+                    // Extraire le poids si non fourni dans data-weight
+                    let finalWeight = weight;
+                    if (!finalWeight || finalWeight === 'undefined') {
+                        const weightElement = productCard.querySelector('.weight-badge');
+                        finalWeight = weightElement ? weightElement.textContent : '100g';
+                    }
+                    
+                    // Ajouter au panier
+                    const cart = JSON.parse(localStorage.getItem('cart')) || [];
+                    const existingItem = cart.find(item => item.id === id);
+                    
+                    if (existingItem) {
+                        existingItem.quantity++;
+                    } else {
+                        cart.push({
+                            id,
+                            name,
+                            price,
+                            quantity: 1,
+                            image: finalImage,
+                            weight: finalWeight
+                        });
+                    }
+                    
+                    localStorage.setItem('cart', JSON.stringify(cart));
+                    updateCartCount();
+                    
+                    // Animation
+                    this.classList.add('added-to-cart');
+                    const originalText = this.innerHTML;
+                    this.innerHTML = '<i class="fas fa-check me-2"></i>Ajouté';
+                    this.classList.add('btn-success');
+                    
+                    setTimeout(() => {
+                        this.innerHTML = originalText;
+                        this.classList.remove('btn-success');
+                        this.classList.remove('added-to-cart');
+                    }, 1500);
+                    
+                    console.log('Produit ajouté au panier:', { id, name, price });
+                });
+            });
+        }
+
+        // ============================================
+        // GESTION DU PANIER
+        // ============================================
+
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+        // Mettre à jour le compteur du panier
+        function updateCartCount() {
+            const count = cart.reduce((total, item) => total + item.quantity, 0);
+            const cartCountElement = document.querySelector('.cart-count');
+            if (cartCountElement) {
+                cartCountElement.textContent = count;
+            }
+            localStorage.setItem('cart', JSON.stringify(cart));
+        }
+
+        // ============================================
+        // ÉVÉNEMENTS DE NAVIGATION
+        // ============================================
+
+        // Filtrage depuis les cartes de catégories
+        function initCategoryLinks() {
+            document.querySelectorAll('.feature-card a[data-filter]').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const filter = this.dataset.filter;
+                    const button = document.querySelector(`.category-filter-btn[data-filter="${filter}"]`);
+                    if (button) {
+                        button.click();
+                        // Scroll vers la section produits
+                        document.getElementById('produits').scrollIntoView({ behavior: 'smooth' });
+                    }
+                });
+            });
+        }
+
+        // ============================================
+        // ÉVÉNEMENTS DE CONNEXION ADMIN
+        // ============================================
+
+        // Formulaire de connexion admin
+        document.getElementById('adminLoginForm')?.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const username = document.getElementById('adminUsername').value;
+            const password = document.getElementById('adminPassword').value;
+
+            // Utiliser AuthManager pour la connexion
+            const result = window.AuthManager.login(username, password);
+
+            if (result.success) {
+                console.log('Connexion réussie, redirection vers admin.html');
+
+                // Fermer le modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById('adminLoginModal'));
+                modal.hide();
+
+                // Réinitialiser le formulaire
+                document.getElementById('adminLoginForm').reset();
+
+                // Redirection vers admin.html avec un petit délai
+                setTimeout(() => {
+                    window.location.href = 'admin.html';
+                }, 500);
+
+            } else {
+                // Afficher l'erreur
+                alert(result.message);
+
+                // Réinitialiser le mot de passe seulement
+                document.getElementById('adminPassword').value = '';
+
+                // Focus sur le champ mot de passe
+                document.getElementById('adminPassword').focus();
+            }
+        });
+
+        // ============================================
+        // INITIALISATION AU CHARGEMENT
+        // ============================================
+
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Page index.html chargée');
+            
+            // Initialiser les produits par défaut si nécessaire
+            initializeDefaultProducts();
+            
+            // Charger les produits depuis localStorage
+            loadProductsFromStorage();
+            
+            // Initialiser les événements
+            initCategoryLinks();
+            
+            // Initialiser le compteur du panier
+            updateCartCount();
+            
+            // Vérifier si l'utilisateur est déjà connecté
+            if (window.AuthManager && window.AuthManager.isAuthenticated) {
+                console.log('Utilisateur admin déjà connecté');
+            }
+            
+            // Animation de chargement des produits
+            setTimeout(() => {
+                document.querySelectorAll('.product-item').forEach((product, index) => {
+                    setTimeout(() => {
+                        product.style.opacity = '1';
+                        product.style.transform = 'translateY(0)';
+                    }, index * 100);
+                });
+            }, 100);
+
+            // Préparer les produits pour l'animation
+            document.querySelectorAll('.product-item').forEach(product => {
+                product.style.opacity = '0';
+                product.style.transform = 'translateY(20px)';
+                product.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+            });
+
+            // Tester la connexion admin (optionnel - pour debug)
+            if (window.location.search.includes('testadmin')) {
+                const modal = new bootstrap.Modal(document.getElementById('adminLoginModal'));
+                modal.show();
+            }
+        });
+
+        // ============================================
+        // FONCTIONS POUR LE DÉVELOPPEMENT
+        // ============================================
+
+        // Fonction utilitaire pour débugger
+        function debugProducts() {
+            const productsData = JSON.parse(localStorage.getItem('aadeliceProducts')) || { products: [] };
+            console.log('Debug - Produits dans localStorage:', productsData);
+            console.log('Debug - Nombre de produits:', productsData.products.length);
+            console.log('Debug - Liste des produits:', productsData.products);
+        }
+
+        // Exposer la fonction de rechargement pour debug
+        window.reloadProducts = function() {
+            loadProductsFromStorage();
+        };
+
+        // Exposer la fonction de debug
+        window.debugProducts = debugProducts;
+    </script>
+</body>
+
+</html>

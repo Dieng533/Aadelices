@@ -1,0 +1,37 @@
+{
+  "products": [
+    {
+      "id": 1,
+      "name": "Hitschies Acidulés Halal 100g",
+      "category": "Acidulé",
+      "price": 2.50,
+      "description": "Des bonbons acidulés avec une explosion de saveurs fruitées. Certifiés halal.",
+      "image": "https://images.unsplash.com/photo-1582058091505-f87a2e55a40f?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
+      "stock": 50,
+      "rating": 4.5,
+      "reviews": 48,
+      "tags": ["acidulé", "halal", "fruité"]
+    },
+
+    {
+      "id": 3,
+      "name": "Dragées Chocolat & Amandes",
+      "category": "Dragées",
+      "price": 4.50,
+      "description": "Dragées raffinées au chocolat et amandes grillées pour les occasions spéciales.",
+      "image": "https://images.unsplash.com/photo-1579113800032-c38bd7635818?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
+      "stock": 25,
+      "rating": 5.0,
+      "reviews": 62,
+      "tags": ["dragées", "chocolat", "amandes"]
+    }
+  ],
+  "categories": [
+    {"id": 1, "name": "Acidulé", "color": "#008D36"},
+    {"id": 2, "name": "Fruité", "color": "#FF9800"},
+    {"id": 3, "name": "Dragées", "color": "#9C27B0"},
+    {"id": 4, "name": "Sucettes", "color": "#2196F3"},
+    {"id": 5, "name": "Chocolat", "color": "#8B4513"},
+    {"id": 6, "name": "Guimave", "color": "#E6007E"}
+  ]
+}

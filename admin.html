@@ -1,0 +1,1824 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Admin - Aadelice Dakar</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Quicksand:wght@400;500;700&display=swap"
+        rel="stylesheet">
+    <!-- Styles -->
+    <link rel="shortcut icon" href="images/Aadelice_logo.png" type="image/x-icon">
+    <link rel="stylesheet" href="css/admin.css">
+    <style>
+        /* Styles spécifiques admin Dakar */
+        .fcf-badge {
+            background-color: var(--secondary);
+            color: white;
+            padding: 3px 8px;
+            border-radius: 5px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .stat-icon.sales {
+            background-color: var(--secondary);
+        }
+
+        .stat-icon.products {
+            background-color: var(--primary);
+        }
+
+        .stat-icon.users {
+            background-color: #FF9800;
+        }
+
+        .stat-icon.orders {
+            background-color: #2196F3;
+        }
+
+        .stat-icon.whatsapp {
+            background-color: #25D366;
+        }
+
+        .weight-field {
+            max-width: 150px;
+        }
+
+        .category-filter-admin {
+            margin-bottom: 20px;
+        }
+
+        .category-badge {
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-right: 5px;
+        }
+
+        .category-sucres {
+            background-color: var(--primary-light);
+            color: white;
+        }
+
+        .category-sans-sucre {
+            background-color: var(--secondary);
+            color: white;
+        }
+
+        .category-box {
+            background-color: #9C27B0;
+            color: white;
+        }
+
+        .category-boisson {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .category-divers {
+            background-color: #FF9800;
+            color: white;
+        }
+
+        .whatsapp-order-btn {
+            background-color: #25D366;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+        }
+
+        .whatsapp-order-btn:hover {
+            background-color: #128C7E;
+            color: white;
+        }
+
+        .order-status-badge {
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .status-pending {
+            background-color: #FFC107;
+            color: #212529;
+        }
+
+        .status-confirmed {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .status-delivered {
+            background-color: var(--secondary);
+            color: white;
+        }
+
+        .status-cancelled {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .customer-phone {
+            direction: ltr;
+            text-align: right;
+        }
+
+        .product-weight {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        /* Styles pour l'upload d'image */
+        .image-upload-container {
+            border: 2px dashed #ddd;
+            border-radius: 10px;
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background-color: #f8f9fa;
+            position: relative;
+        }
+
+        .image-upload-container:hover {
+            border-color: var(--primary);
+            background-color: rgba(230, 0, 126, 0.05);
+        }
+
+        .image-upload-container.dragover {
+            border-color: var(--primary);
+            background-color: rgba(230, 0, 126, 0.1);
+        }
+
+        .image-upload-icon {
+            font-size: 48px;
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+
+        .image-upload-text {
+            font-weight: 600;
+            color: var(--tertiary);
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        .image-upload-hint {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        .image-file-input {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .image-preview {
+            border: 2px solid #ddd;
+            padding: 5px;
+            background: white;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            max-width: 300px;
+            max-height: 200px;
+            border-radius: 10px;
+        }
+
+        .image-preview.loading {
+            opacity: 0.5;
+        }
+
+        /* Overlay de vérification corrigé */
+        #authOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease;
+        }
+
+        #authOverlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .admin-content {
+            display: none;
+        }
+
+        .admin-content.visible {
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Overlay de vérification SIMPLIFIÉ -->
+    <div id="authOverlay">
+        <div class="text-center text-white p-5" style="max-width: 500px;">
+            <i class="fas fa-user-shield fa-4x mb-4"></i>
+            <h2 class="mb-3">Vérification en cours...</h2>
+            <div class="spinner-border mb-3" role="status">
+                <span class="visually-hidden">Chargement...</span>
+            </div>
+            <p id="authMessage">Vérification de votre session</p>
+        </div>
+    </div>
+
+    <!-- Contenu admin (initialement caché) -->
+    <div class="admin-container admin-content">
+        <!-- Sidebar -->
+        <aside class="admin-sidebar" id="adminSidebar">
+            <div class="admin-logo">
+                <h2>Aa<span>delice</span> <small>Dakar Admin</small></h2>
+            </div>
+
+            <div class="admin-menu">
+                <a href="#dashboard" class="admin-menu-item active">
+                    <div class="admin-menu-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="admin-menu-text">Tableau de bord</div>
+                </a>
+
+                <a href="#products" class="admin-menu-item">
+                    <div class="admin-menu-icon">
+                        <i class="fas fa-candy-cane"></i>
+                    </div>
+                    <div class="admin-menu-text">Produits</div>
+                </a>
+
+                <a href="#orders" class="admin-menu-item">
+                    <div class="admin-menu-icon">
+                        <i class="fas fa-shopping-cart"></i>
+                    </div>
+                    <div class="admin-menu-text">Commandes</div>
+                </a>
+
+                <a href="#customers" class="admin-menu-item">
+                    <div class="admin-menu-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="admin-menu-text">Clients</div>
+                </a>
+
+                <a href="#settings" class="admin-menu-item">
+                    <div class="admin-menu-icon">
+                        <i class="fas fa-cog"></i>
+                    </div>
+                    <div class="admin-menu-text">Paramètres</div>
+                </a>
+
+                <a href="#whatsapp" class="admin-menu-item">
+                    <div class="admin-menu-icon">
+                        <i class="fab fa-whatsapp"></i>
+                    </div>
+                    <div class="admin-menu-text">Gestion WhatsApp</div>
+                </a>
+
+                <div class="mt-5 pt-3 border-top border-secondary">
+                    <a href="index.html" class="admin-menu-item">
+                        <div class="admin-menu-icon">
+                            <i class="fas fa-store"></i>
+                        </div>
+                        <div class="admin-menu-text">Retour boutique</div>
+                    </a>
+
+                    <a href="#" class="admin-menu-item" id="logoutBtn">
+                        <div class="admin-menu-icon">
+                            <i class="fas fa-sign-out-alt"></i>
+                        </div>
+                        <div class="admin-menu-text">Déconnexion</div>
+                    </a>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Contenu principal -->
+        <main class="admin-main" id="adminMain">
+            <!-- Header -->
+            <header class="admin-header">
+                <div>
+                    <button class="btn btn-outline-primary-custom me-3" id="toggleSidebar">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h1>Tableau de bord Aadelice Dakar</h1>
+                </div>
+
+                <div class="admin-user">
+                    <div class="admin-avatar">
+                        <span>AD</span>
+                    </div>
+                    <div>
+                        <h6 class="mb-0">Administrateur</h6>
+                        <small class="text-muted">Dakar Ouest Foire</small>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Contenu dynamique -->
+            <div id="adminContent">
+                <!-- Dashboard -->
+                <section id="dashboard" class="admin-section">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon sales">
+                                <i class="fas fa-money-bill-wave"></i>
+                            </div>
+                            <div class="stat-value">245.500 <small class="fcf-symbol">FCFA</small></div>
+                            <div class="stat-label">CA 30 derniers jours</div>
+                            <div class="stat-change positive">
+                                <i class="fas fa-arrow-up"></i>
+                                <span>15,2%</span>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-icon products">
+                                <i class="fas fa-candy-cane"></i>
+                            </div>
+                            <div class="stat-value" id="totalProductsCount">0</div>
+                            <div class="stat-label">Produits actifs</div>
+                            <div class="stat-change positive">
+                                <i class="fas fa-plus"></i>
+                                <span>0 nouveau</span>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-icon users">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="stat-value">42</div>
+                            <div class="stat-label">Nouveaux clients</div>
+                            <div class="stat-change positive">
+                                <i class="fas fa-arrow-up"></i>
+                                <span>8,5%</span>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-icon whatsapp">
+                                <i class="fab fa-whatsapp"></i>
+                            </div>
+                            <div class="stat-value">12</div>
+                            <div class="stat-label">Commandes WhatsApp</div>
+                            <div class="stat-change positive">
+                                <i class="fas fa-arrow-up"></i>
+                                <span>25%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="admin-table-container">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h3>Produits récemment ajoutés</h3>
+                            <a href="#products" class="btn btn-primary-custom btn-sm">Voir tout</a>
+                        </div>
+
+                        <div id="recentProductsTable">
+                            <!-- Chargé dynamiquement -->
+                        </div>
+                    </div>
+
+                    <div class="admin-table-container">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h3>Commandes récentes</h3>
+                            <a href="#orders" class="btn btn-primary-custom btn-sm">Voir tout</a>
+                        </div>
+
+                        <div id="recentOrdersTable">
+                            <!-- Chargé dynamiquement -->
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Gestion des produits -->
+                <section id="products" class="admin-section d-none">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2>Gestion des produits</h2>
+                        <button class="btn btn-primary-custom" id="addProductBtn">
+                            <i class="fas fa-plus me-2"></i>Ajouter un produit
+                        </button>
+                    </div>
+
+                    <!-- Filtres produits -->
+                    <div class="category-filter-admin">
+                        <button class="category-filter-btn active" data-filter="all">Tous</button>
+                        <button class="category-filter-btn" data-filter="Sucres">Sucrés</button>
+                        <button class="category-filter-btn" data-filter="Sans sucre">Sans sucre</button>
+                        <button class="category-filter-btn" data-filter="Box">Box</button>
+                        <button class="category-filter-btn" data-filter="Boisson">Boissons</button>
+                        <button class="category-filter-btn" data-filter="Divers">Divers</button>
+                    </div>
+
+                    <div class="admin-table-container">
+                        <div class="table-responsive">
+                            <table class="admin-table" id="productsTable">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Image</th>
+                                        <th>Nom</th>
+                                        <th>Catégorie</th>
+                                        <th>Prix</th>
+                                        <th>Poids</th>
+                                        <th>Stock</th>
+                                        <th>Statut</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="productsTableBody">
+                                    <!-- Chargé dynamiquement -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="admin-pagination" id="productsPagination">
+                            <!-- Généré dynamiquement -->
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Formulaire d'ajout/modification produit -->
+                <section id="productFormSection" class="admin-section d-none">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2 id="productFormTitle">Nouveau produit</h2>
+                        <button class="btn btn-outline-primary-custom" id="backToListBtn">
+                            <i class="fas fa-arrow-left me-2"></i>Retour à la liste
+                        </button>
+                    </div>
+
+                    <div class="admin-form-container">
+                        <form id="productForm">
+                            <input type="hidden" id="productId">
+
+                            <div class="form-section">
+                                <h4 class="form-section-title">
+                                    <i class="fas fa-info-circle"></i>
+                                    Informations de base
+                                </h4>
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="productName" class="form-label">Nom du produit *</label>
+                                        <input type="text" class="form-control-custom" id="productName"
+                                            placeholder="Ex: Hitschies Acidulés Halal" required>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label for="productCategory" class="form-label">Catégorie *</label>
+                                        <select class="form-control-custom" id="productCategory" required>
+                                            <option value="">Sélectionner une catégorie</option>
+                                            <option value="Sucres">Sucrés</option>
+                                            <option value="Sans sucre">Sans sucre</option>
+                                            <option value="Box">Box</option>
+                                            <option value="Boisson">Boisson</option>
+                                            <option value="Divers">Divers</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-md-4 mb-3">
+                                        <label for="productPrice" class="form-label">Prix (FCFA) *</label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control-custom" id="productPrice" min="0"
+                                                required>
+                                            <span class="input-group-text">FCFA</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-4 mb-3">
+                                        <label for="productWeight" class="form-label">Poids *</label>
+                                        <select class="form-control-custom" id="productWeight" required>
+                                            <option value="100g">100g</option>
+                                            <option value="200g">200g</option>
+                                            <option value="250g">250g</option>
+                                            <option value="500g">500g</option>
+                                            <option value="1kg">1kg</option>
+                                            <option value="33cl">33cl (Boisson)</option>
+                                            <option value="50cl">50cl (Boisson)</option>
+                                            <option value="1L">1L (Boisson)</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-md-4 mb-3">
+                                        <label for="productStock" class="form-label">Stock *</label>
+                                        <input type="number" class="form-control-custom" id="productStock" min="0"
+                                            required>
+                                    </div>
+
+                                    <div class="col-12 mb-3">
+                                        <label for="productDescription" class="form-label">Description</label>
+                                        <textarea class="form-control-custom form-textarea" id="productDescription"
+                                            rows="4" placeholder="Description détaillée du produit..."></textarea>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-section">
+                                <h4 class="form-section-title">
+                                    <i class="fas fa-image"></i>
+                                    Image du produit
+                                </h4>
+
+                                <div class="mb-3">
+                                    <label for="productImageUrl" class="form-label">URL de l'image</label>
+                                    <input type="url" class="form-control-custom" id="productImageUrl"
+                                        placeholder="https://images.unsplash.com/photo-...">
+                                    <small class="text-muted">Utilisez une URL d'image Unsplash ou autre</small>
+                                </div>
+
+                                <div class="image-upload-container" id="imageUploadArea">
+                                    <div class="image-upload-icon">
+                                        <i class="fas fa-cloud-upload-alt"></i>
+                                    </div>
+                                    <div class="image-upload-text">Cliquez pour sélectionner une image</div>
+                                    <div class="image-upload-hint">JPEG, PNG ou WebP, max 2MB</div>
+                                    <input type="file" class="image-file-input" id="productImageFile" accept="image/*">
+                                </div>
+
+                                <div class="text-center mt-3">
+                                    <img src="" alt="Aperçu de l'image" class="image-preview d-none"
+                                        id="productImagePreview">
+                                </div>
+
+                                <div class="mt-3">
+                                    <small class="text-muted">Images suggérées (Unsplash):</small>
+                                    <div class="d-flex flex-wrap gap-2 mt-2">
+                                        <button type="button" class="btn btn-sm btn-outline-secondary image-suggestion"
+                                            data-url="https://images.unsplash.com/photo-1582058091505-f87a2e55a40f?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80">
+                                            Bonbons 1
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary image-suggestion"
+                                            data-url="https://images.unsplash.com/photo-1514517260014-8c6c2c58b5b9?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80">
+                                            Bonbons 2
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary image-suggestion"
+                                            data-url="https://images.unsplash.com/photo-1579113800032-c38bd7635818?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80">
+                                            Bonbons 3
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-section">
+                                <h4 class="form-section-title">
+                                    <i class="fas fa-star"></i>
+                                    Évaluation
+                                </h4>
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="productRating" class="form-label">Note (0-5)</label>
+                                        <select class="form-control-custom" id="productRating">
+                                            <option value="0">0 étoiles</option>
+                                            <option value="1">1 étoile</option>
+                                            <option value="2">2 étoiles</option>
+                                            <option value="3">3 étoiles</option>
+                                            <option value="4" selected>4 étoiles</option>
+                                            <option value="5">5 étoiles</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label for="productReviews" class="form-label">Nombre d'avis</label>
+                                        <input type="number" class="form-control-custom" id="productReviews" min="0"
+                                            value="0">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-between mt-4">
+                                <button type="button" class="btn btn-outline-primary-custom" id="cancelProductBtn">
+                                    Annuler
+                                </button>
+
+                                <button type="submit" class="btn btn-primary-custom" id="saveProductBtn">
+                                    <i class="fas fa-save me-2"></i>
+                                    Enregistrer le produit
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </section>
+
+                <!-- Gestion des commandes -->
+                <section id="orders" class="admin-section d-none">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2>Gestion des commandes</h2>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-outline-primary-custom" id="exportOrdersBtn">
+                                <i class="fas fa-download me-2"></i>Exporter
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Filtres commandes -->
+                    <div class="category-filter-admin">
+                        <button class="category-filter-btn active" data-filter="all">Toutes</button>
+                        <button class="category-filter-btn" data-filter="pending">En attente</button>
+                        <button class="category-filter-btn" data-filter="confirmed">Confirmées</button>
+                        <button class="category-filter-btn" data-filter="delivered">Livrées</button>
+                        <button class="category-filter-btn" data-filter="cancelled">Annulées</button>
+                    </div>
+
+                    <div class="admin-table-container">
+                        <div class="table-responsive">
+                            <table class="admin-table" id="ordersTable">
+                                <thead>
+                                    <tr>
+                                        <th>N° Commande</th>
+                                        <th>Client</th>
+                                        <th>Téléphone</th>
+                                        <th>Date</th>
+                                        <th>Montant</th>
+                                        <th>Statut</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="ordersTableBody">
+                                    <!-- Chargé dynamiquement -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="admin-pagination" id="ordersPagination">
+                            <!-- Généré dynamiquement -->
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Détail commande -->
+                <section id="orderDetailSection" class="admin-section d-none">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2 id="orderDetailTitle">Détail commande</h2>
+                        <button class="btn btn-outline-primary-custom" id="backToOrdersBtn">
+                            <i class="fas fa-arrow-left me-2"></i>Retour aux commandes
+                        </button>
+                    </div>
+
+                    <div class="admin-form-container">
+                        <div id="orderDetailContent">
+                            <!-- Chargé dynamiquement -->
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Gestion des clients -->
+                <section id="customers" class="admin-section d-none">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2>Gestion des clients</h2>
+                        <div class="d-flex gap-2">
+                            <input type="text" class="form-control-custom" id="searchCustomer"
+                                placeholder="Rechercher un client...">
+                        </div>
+                    </div>
+
+                    <div class="admin-table-container">
+                        <div class="table-responsive">
+                            <table class="admin-table" id="customersTable">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Nom</th>
+                                        <th>Téléphone</th>
+                                        <th>Email</th>
+                                        <th>Commune</th>
+                                        <th>Commandes</th>
+                                        <th>Dernière commande</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="customersTableBody">
+                                    <!-- Chargé dynamiquement -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="admin-pagination" id="customersPagination">
+                            <!-- Généré dynamiquement -->
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Paramètres -->
+                <section id="settings" class="admin-section d-none">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2>Paramètres de la boutique</h2>
+                    </div>
+
+                    <div class="admin-form-container">
+                        <form id="settingsForm">
+                            <div class="form-section">
+                                <h4 class="form-section-title">
+                                    <i class="fas fa-store"></i>
+                                    Informations boutique
+                                </h4>
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="shopName" class="form-label">Nom de la boutique *</label>
+                                        <input type="text" class="form-control-custom" id="shopName"
+                                            value="Aadelice Dakar" required>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label for="shopPhone" class="form-label">Téléphone *</label>
+                                        <input type="tel" class="form-control-custom customer-phone" id="shopPhone"
+                                            value="+221771635858" required>
+                                    </div>
+
+                                    <div class="col-12 mb-3">
+                                        <label for="shopAddress" class="form-label">Adresse *</label>
+                                        <input type="text" class="form-control-custom" id="shopAddress"
+                                            value="Dakar Ouest Foire, Sénégal" required>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label for="shopWhatsApp" class="form-label">Numéro WhatsApp *</label>
+                                        <input type="tel" class="form-control-custom customer-phone" id="shopWhatsApp"
+                                            value="+221771635858" required>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label for="shopEmail" class="form-label">Email</label>
+                                        <input type="email" class="form-control-custom" id="shopEmail"
+                                            placeholder="contact@aadelice.sn">
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label for="freeShippingMin" class="form-label">Livraison gratuite à partir de
+                                            (FCFA)</label>
+                                        <input type="number" class="form-control-custom" id="freeShippingMin"
+                                            value="10000">
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label for="deliveryCost" class="form-label">Frais de livraison (FCFA)</label>
+                                        <input type="number" class="form-control-custom" id="deliveryCost" value="1500">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-section">
+                                <h4 class="form-section-title">
+                                    <i class="fas fa-lock"></i>
+                                    Sécurité Admin
+                                </h4>
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="adminUsername" class="form-label">Nom d'utilisateur *</label>
+                                        <input type="text" class="form-control-custom" id="adminUsername"
+                                            value="aadelice_admin" required>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label for="adminPassword" class="form-label">Nouveau mot de passe</label>
+                                        <input type="password" class="form-control-custom" id="adminPassword"
+                                            placeholder="Laisser vide pour ne pas changer">
+                                    </div>
+                                </div>
+
+                                <div class="alert alert-warning">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>
+                                    Changer le mot de passe déconnectera tous les utilisateurs.
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-between mt-4">
+                                <button type="button" class="btn btn-outline-danger" id="resetSettingsBtn">
+                                    Réinitialiser
+                                </button>
+
+                                <button type="submit" class="btn btn-primary-custom">
+                                    <i class="fas fa-save me-2"></i>
+                                    Enregistrer les paramètres
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </section>
+
+                <!-- Gestion WhatsApp -->
+                <section id="whatsapp" class="admin-section d-none">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2>Gestion WhatsApp</h2>
+                        <button class="btn btn-primary-custom" id="testWhatsAppBtn">
+                            <i class="fab fa-whatsapp me-2"></i>Tester WhatsApp
+                        </button>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-4">
+                            <div class="admin-table-container h-100">
+                                <h4 class="mb-3">Messages automatiques</h4>
+                                <div class="mb-3">
+                                    <label class="form-label">Message de bienvenue</label>
+                                    <textarea class="form-control-custom form-textarea" id="welcomeMessage" rows="3">
+Bonjour ! 👋 
+Bienvenue chez Aadelice Dakar ! 🍬
+Je suis là pour vous aider avec vos commandes de bonbons.
+Que désirez-vous aujourd'hui ? 😊
+                                    </textarea>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Message confirmation commande</label>
+                                    <textarea class="form-control-custom form-textarea" id="orderConfirmMessage"
+                                        rows="3">
+✅ Commande confirmée !
+Merci pour votre commande chez Aadelice Dakar.
+Votre commande n°{ORDER_ID} d'un montant de {TOTAL} FCFA a été enregistrée.
+Elle sera préparée et livrée sous 24h.
+Nous vous contacterons pour la livraison. 📦
+                                    </textarea>
+                                </div>
+
+                                <button class="btn btn-secondary-custom w-100" id="saveMessagesBtn">
+                                    <i class="fas fa-save me-2"></i>Enregistrer les messages
+                                </button>
+                            </div>
+                        </div>
+
+
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Admin Manager pour Aadelice Dakar
+        class AdminManagerDakar {
+            constructor() {
+                this.currentPage = 'dashboard';
+                this.currentProductId = null;
+                this.currentOrderId = null;
+                this.productsPerPage = 10;
+                this.ordersPerPage = 10;
+                this.customersPerPage = 10;
+                this.currentProductsPage = 1;
+                this.currentOrdersPage = 1;
+                this.currentCustomersPage = 1;
+
+                this.init();
+            }
+
+            init() {
+                // Initialiser les événements
+                this.initSidebar();
+                this.initNavigation();
+                this.initProductForm();
+                this.initImageUpload();
+                this.initOrderHandlers();
+                this.initSettings();
+                this.initWhatsApp();
+
+                // Charger les données
+                this.loadProducts();
+                this.loadOrders();
+                this.loadCustomers();
+
+                // Afficher le tableau de bord
+                this.showSection('dashboard');
+
+                console.log('AdminManagerDakar initialisé');
+            }
+
+            initSidebar() {
+                // Toggle sidebar
+                document.getElementById('toggleSidebar').addEventListener('click', () => {
+                    document.getElementById('adminSidebar').classList.toggle('collapsed');
+                    document.getElementById('adminMain').classList.toggle('collapsed');
+                });
+
+                // Navigation sidebar
+                document.querySelectorAll('.admin-menu-item').forEach(item => {
+                    item.addEventListener('click', (e) => {
+                        e.preventDefault();
+
+                        const target = item.getAttribute('href').substring(1);
+                        if (target !== this.currentPage) {
+                            this.showSection(target);
+
+                            // Mettre à jour l'état actif
+                            document.querySelectorAll('.admin-menu-item').forEach(i => {
+                                i.classList.remove('active');
+                            });
+                            item.classList.add('active');
+
+                            this.currentPage = target;
+                        }
+                    });
+                });
+
+                // Logout
+                document.getElementById('logoutBtn').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    if (confirm('Êtes-vous sûr de vouloir vous déconnecter ?')) {
+                        localStorage.removeItem('aadeliceAdminAuth');
+                        window.location.href = 'index.html';
+                    }
+                });
+            }
+
+            initNavigation() {
+                // Boutons généraux
+                document.getElementById('addProductBtn').addEventListener('click', () => {
+                    this.showProductForm();
+                });
+
+                document.getElementById('backToListBtn').addEventListener('click', () => {
+                    this.showProductList();
+                });
+
+                document.getElementById('cancelProductBtn').addEventListener('click', () => {
+                    if (confirm('Les modifications non enregistrées seront perdues. Continuer ?')) {
+                        this.showProductList();
+                    }
+                });
+
+                document.getElementById('backToOrdersBtn').addEventListener('click', () => {
+                    this.showOrderList();
+                });
+
+                // Filtres produits
+                document.querySelectorAll('#products .category-filter-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        document.querySelectorAll('#products .category-filter-btn').forEach(b => {
+                            b.classList.remove('active');
+                        });
+                        btn.classList.add('active');
+                        this.filterProducts(btn.getAttribute('data-filter'));
+                    });
+                });
+
+                // Filtres commandes
+                document.querySelectorAll('#orders .category-filter-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        document.querySelectorAll('#orders .category-filter-btn').forEach(b => {
+                            b.classList.remove('active');
+                        });
+                        btn.classList.add('active');
+                        this.filterOrders(btn.getAttribute('data-filter'));
+                    });
+                });
+            }
+
+            initImageUpload() {
+                const imageUploadArea = document.getElementById('imageUploadArea');
+                const imageFileInput = document.getElementById('productImageFile');
+                const imagePreview = document.getElementById('productImagePreview');
+                const imageUrlInput = document.getElementById('productImageUrl');
+
+                if (imageUploadArea && imageFileInput) {
+                    // 1. Click sur la zone d'upload
+                    imageUploadArea.addEventListener('click', function (e) {
+                        if (e.target !== imageFileInput) {
+                            imageFileInput.click();
+                        }
+                    });
+
+                    // 2. Changement de fichier
+                    imageFileInput.addEventListener('change', function (e) {
+                        const file = e.target.files[0];
+
+                        if (file) {
+                            // Vérifier la taille (max 2MB)
+                            if (file.size > 2 * 1024 * 1024) {
+                                alert('Le fichier est trop volumineux. Taille maximum : 2MB');
+                                this.value = '';
+                                return;
+                            }
+
+                            // Vérifier le type
+                            if (!file.type.match('image.*')) {
+                                alert('Veuillez sélectionner une image (JPEG, PNG, WebP)');
+                                this.value = '';
+                                return;
+                            }
+
+                            // Afficher l'aperçu
+                            const reader = new FileReader();
+
+                            reader.onload = function (event) {
+                                imagePreview.src = event.target.result;
+                                imagePreview.classList.remove('d-none');
+
+                                // Effacer l'URL si un fichier est sélectionné
+                                if (imageUrlInput) imageUrlInput.value = '';
+                            };
+
+                            reader.readAsDataURL(file);
+                        }
+                    });
+
+                    // 3. Drag and drop
+                    imageUploadArea.addEventListener('dragover', function (e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        this.classList.add('dragover');
+                    });
+
+                    imageUploadArea.addEventListener('dragleave', function (e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        this.classList.remove('dragover');
+                    });
+
+                    imageUploadArea.addEventListener('drop', function (e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        this.classList.remove('dragover');
+
+                        const files = e.dataTransfer.files;
+                        if (files.length > 0) {
+                            const file = files[0];
+
+                            // Vérifier la taille et le type
+                            if (file.size > 2 * 1024 * 1024) {
+                                alert('Le fichier est trop volumineux. Taille maximum : 2MB');
+                                return;
+                            }
+
+                            if (!file.type.match('image.*')) {
+                                alert('Veuillez déposer une image (JPEG, PNG, WebP)');
+                                return;
+                            }
+
+                            // Afficher l'aperçu
+                            const reader = new FileReader();
+
+                            reader.onload = function (event) {
+                                imagePreview.src = event.target.result;
+                                imagePreview.classList.remove('d-none');
+
+                                // Effacer l'URL si un fichier est déposé
+                                if (imageUrlInput) imageUrlInput.value = '';
+
+                                // Mettre à jour l'input file
+                                const dataTransfer = new DataTransfer();
+                                dataTransfer.items.add(file);
+                                imageFileInput.files = dataTransfer.files;
+                            };
+
+                            reader.readAsDataURL(file);
+                        }
+                    });
+                }
+
+                // Suggestions d'images
+                document.querySelectorAll('.image-suggestion').forEach(button => {
+                    button.addEventListener('click', function () {
+                        const url = this.getAttribute('data-url');
+
+                        // Mettre à jour l'URL
+                        if (imageUrlInput) imageUrlInput.value = url;
+
+                        // Afficher l'aperçu
+                        if (imagePreview) {
+                            imagePreview.src = url;
+                            imagePreview.classList.remove('d-none');
+                        }
+
+                        // Effacer le fichier sélectionné
+                        if (imageFileInput) imageFileInput.value = '';
+                    });
+                });
+
+                // Quand l'URL change manuellement
+                if (imageUrlInput) {
+                    imageUrlInput.addEventListener('input', function () {
+                        if (this.value && imagePreview) {
+                            imagePreview.src = this.value;
+                            imagePreview.classList.remove('d-none');
+
+                            // Effacer le fichier sélectionné
+                            if (imageFileInput) imageFileInput.value = '';
+                        }
+                    });
+                }
+            }
+
+            initProductForm() {
+                const form = document.getElementById('productForm');
+
+                // Soumission du formulaire
+                form.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.saveProduct();
+                });
+            }
+
+            initOrderHandlers() {
+                // Export des commandes
+                document.getElementById('exportOrdersBtn').addEventListener('click', () => {
+                    this.exportOrders();
+                });
+            }
+
+            initSettings() {
+                const form = document.getElementById('settingsForm');
+                const resetBtn = document.getElementById('resetSettingsBtn');
+
+                // Charger les paramètres
+                this.loadSettings();
+
+                // Réinitialisation
+                resetBtn.addEventListener('click', () => {
+                    if (confirm('Êtes-vous sûr de vouloir réinitialiser tous les paramètres ?')) {
+                        this.resetSettings();
+                    }
+                });
+
+                // Sauvegarde
+                form.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.saveSettings();
+                });
+            }
+
+            initWhatsApp() {
+                // Tester WhatsApp
+                document.getElementById('testWhatsAppBtn').addEventListener('click', () => {
+                    window.open('https://wa.me/221771635858?text=Test%20admin%20Aadelice', '_blank');
+                });
+
+                // Copier le lien
+                document.getElementById('copyWhatsAppBtn').addEventListener('click', () => {
+                    const link = document.getElementById('whatsappLink');
+                    link.select();
+                    document.execCommand('copy');
+                    this.showNotification('Lien WhatsApp copié !');
+                });
+
+                // Sauvegarder les messages
+                document.getElementById('saveMessagesBtn').addEventListener('click', () => {
+                    this.saveWhatsAppMessages();
+                });
+            }
+
+            showSection(sectionId) {
+                // Masquer toutes les sections
+                document.querySelectorAll('.admin-section').forEach(section => {
+                    section.classList.add('d-none');
+                });
+
+                // Afficher la section demandée
+                const section = document.getElementById(sectionId);
+                if (section) {
+                    section.classList.remove('d-none');
+
+                    // Mettre à jour le titre du header
+                    if (sectionId !== 'productFormSection' && sectionId !== 'orderDetailSection') {
+                        const headerTitle = document.querySelector('.admin-header h1');
+                        const sectionTitle = section.querySelector('h2, h3');
+                        if (sectionTitle) {
+                            headerTitle.textContent = sectionTitle.textContent;
+                        }
+                    }
+                }
+            }
+
+            showProductList() {
+                this.currentProductId = null;
+                this.showSection('products');
+                document.querySelector('.admin-header h1').textContent = 'Gestion des produits';
+                this.loadProducts();
+            }
+
+            showProductForm(productId = null) {
+                const form = document.getElementById('productForm');
+                const formTitle = document.getElementById('productFormTitle');
+                const imagePreview = document.getElementById('productImagePreview');
+                const imageUrlInput = document.getElementById('productImageUrl');
+                const imageFileInput = document.getElementById('productImageFile');
+
+                // Réinitialiser le formulaire
+                form.reset();
+                if (imagePreview) imagePreview.classList.add('d-none');
+                if (imageUrlInput) imageUrlInput.value = '';
+                if (imageFileInput) imageFileInput.value = '';
+                document.getElementById('productId').value = '';
+                document.getElementById('productRating').value = '4';
+                document.getElementById('productReviews').value = '0';
+                document.getElementById('productWeight').value = '100g';
+                document.getElementById('productStock').value = '10';
+
+                if (productId) {
+                    // Mode édition
+                    formTitle.textContent = 'Modifier le produit';
+                    this.currentProductId = productId;
+
+                    // Charger les données du produit
+                    const products = JSON.parse(localStorage.getItem('aadeliceProducts')) || { products: [] };
+                    const product = products.products.find(p => p.id == productId);
+
+                    if (product) {
+                        document.getElementById('productId').value = product.id;
+                        document.getElementById('productName').value = product.name;
+                        document.getElementById('productCategory').value = product.category;
+                        document.getElementById('productPrice').value = product.price;
+                        document.getElementById('productStock').value = product.stock;
+                        document.getElementById('productDescription').value = product.description || '';
+                        document.getElementById('productImageUrl').value = product.image || '';
+                        document.getElementById('productRating').value = product.rating || '4';
+                        document.getElementById('productReviews').value = product.reviews || '0';
+                        document.getElementById('productWeight').value = product.weight || '100g';
+
+                        if (product.image && imagePreview) {
+                            imagePreview.src = product.image;
+                            imagePreview.classList.remove('d-none');
+                        }
+                    }
+                } else {
+                    // Mode création
+                    formTitle.textContent = 'Nouveau produit';
+                    this.currentProductId = null;
+                }
+
+                this.showSection('productFormSection');
+                document.querySelector('.admin-header h1').textContent = formTitle.textContent;
+            }
+
+            showOrderList() {
+                this.currentOrderId = null;
+                this.showSection('orders');
+                document.querySelector('.admin-header h1').textContent = 'Gestion des commandes';
+            }
+
+            showOrderDetail(orderId) {
+                this.currentOrderId = orderId;
+                this.showSection('orderDetailSection');
+                document.getElementById('orderDetailTitle').textContent = `Commande #${orderId}`;
+                document.querySelector('.admin-header h1').textContent = `Détail commande #${orderId}`;
+
+                this.loadOrderDetail(orderId);
+            }
+
+            loadProducts() {
+                console.log('Chargement des produits depuis localStorage...');
+
+                // Charger depuis localStorage
+                const productsData = JSON.parse(localStorage.getItem('aadeliceProducts')) || { products: [] };
+                const products = productsData.products || [];
+
+                console.log('Produits chargés:', products.length);
+
+                // Mettre à jour le compteur dans le dashboard
+                document.getElementById('totalProductsCount').textContent = products.length;
+
+                // Afficher dans le tableau
+                const tableBody = document.getElementById('productsTableBody');
+                if (tableBody) {
+                    if (products.length === 0) {
+                        tableBody.innerHTML = `
+                            <tr>
+                                <td colspan="9" class="text-center py-4">
+                                    <i class="fas fa-candy-cane fa-2x text-muted mb-3"></i>
+                                    <p class="text-muted">Aucun produit ajouté</p>
+                                    <button class="btn btn-primary-custom btn-sm" id="addFirstProductBtn">
+                                        <i class="fas fa-plus me-2"></i>Ajouter un produit
+                                    </button>
+                                </td>
+                            </tr>
+                        `;
+
+                        // Ajouter l'événement au bouton
+                        document.getElementById('addFirstProductBtn')?.addEventListener('click', () => {
+                            this.showProductForm();
+                        });
+                    } else {
+                        let html = '';
+                        products.forEach(product => {
+                            // Déterminer le statut du stock
+                            let stockStatus = 'status-active';
+                            let stockText = 'En stock';
+
+                            if (product.stock === 0) {
+                                stockStatus = 'status-inactive';
+                                stockText = 'Rupture';
+                            } else if (product.stock < 10) {
+                                stockStatus = 'status-low';
+                                stockText = 'Stock faible';
+                            }
+
+                            // Déterminer la classe de catégorie
+                            let categoryClass = 'category-sucres';
+                            if (product.category === 'Sans sucre') categoryClass = 'category-sans-sucre';
+                            else if (product.category === 'Box') categoryClass = 'category-box';
+                            else if (product.category === 'Boisson') categoryClass = 'category-boisson';
+                            else if (product.category === 'Divers') categoryClass = 'category-divers';
+
+                            html += `
+                                <tr>
+                                    <td>#${product.id.toString().padStart(3, '0')}</td>
+                                    <td>
+                                        <img src="${product.image || 'https://via.placeholder.com/60'}" 
+                                             alt="${product.name}" 
+                                             class="product-thumbnail"
+                                             onerror="this.src='https://via.placeholder.com/60'">
+                                    </td>
+                                    <td>
+                                        <strong>${product.name}</strong>
+                                        <div class="product-weight">${product.weight || '100g'}</div>
+                                    </td>
+                                    <td>
+                                        <span class="category-badge ${categoryClass}">
+                                            ${product.category}
+                                        </span>
+                                    </td>
+                                    <td>${(product.price || 0).toLocaleString('fr-FR')} FCFA</td>
+                                    <td>${product.weight || '100g'}</td>
+                                    <td>${product.stock || 0}</td>
+                                    <td>
+                                        <span class="status-badge ${stockStatus}">${stockText}</span>
+                                    </td>
+                                    <td>
+                                        <div class="action-buttons">
+                                            <button class="btn-action btn-edit edit-product" data-id="${product.id}">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn-action btn-delete delete-product" data-id="${product.id}">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            `;
+                        });
+                        tableBody.innerHTML = html;
+
+                        // Ajouter les événements aux boutons
+                        this.addProductEvents();
+                    }
+                }
+
+                // Afficher les produits récents dans le dashboard
+                this.displayRecentProducts(products.slice(0, 5));
+            }
+
+            displayRecentProducts(products) {
+                const container = document.getElementById('recentProductsTable');
+                if (!container) return;
+
+                if (products.length === 0) {
+                    container.innerHTML = '<p class="text-center text-muted py-4">Aucun produit récent</p>';
+                    return;
+                }
+
+                let html = `
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Image</th>
+                                <th>Nom</th>
+                                <th>Catégorie</th>
+                                <th>Prix</th>
+                                <th>Stock</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+
+                products.forEach(product => {
+                    html += `
+                        <tr>
+                            <td>
+                                <img src="${product.image}" alt="${product.name}" class="product-thumbnail" onerror="this.src='https://via.placeholder.com/60'">
+                            </td>
+                            <td>${product.name}</td>
+                            <td>${product.category}</td>
+                            <td>${(product.price || 0).toLocaleString('fr-FR')} FCFA</td>
+                            <td>${product.stock || 0}</td>
+                        </tr>
+                    `;
+                });
+
+                html += `
+                        </tbody>
+                    </table>
+                `;
+
+                container.innerHTML = html;
+            }
+
+            filterProducts(category) {
+                this.currentProductsPage = 1;
+                this.loadProducts();
+            }
+
+            addProductEvents() {
+                // Édition
+                document.querySelectorAll('.edit-product').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const productId = e.currentTarget.getAttribute('data-id');
+                        this.showProductForm(productId);
+                    });
+                });
+
+                // Suppression
+                document.querySelectorAll('.delete-product').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const productId = e.currentTarget.getAttribute('data-id');
+                        this.deleteProduct(productId);
+                    });
+                });
+            }
+
+            async saveProduct() {
+                // Récupérer les données du formulaire
+                const productId = document.getElementById('productId').value;
+                const name = document.getElementById('productName').value;
+                const category = document.getElementById('productCategory').value;
+                const price = parseInt(document.getElementById('productPrice').value);
+                const stock = parseInt(document.getElementById('productStock').value);
+                const description = document.getElementById('productDescription').value;
+                const imageUrl = document.getElementById('productImageUrl').value;
+                const rating = parseFloat(document.getElementById('productRating').value);
+                const reviews = parseInt(document.getElementById('productReviews').value);
+                const weight = document.getElementById('productWeight').value;
+                const fileInput = document.getElementById('productImageFile');
+                const imagePreview = document.getElementById('productImagePreview').src;
+
+                // Utiliser l'URL, l'aperçu ou une image par défaut
+                let image = imageUrl;
+                if (!image && imagePreview && !imagePreview.includes('data:,')) {
+                    image = imagePreview;
+                }
+                if (!image) {
+                    image = 'https://images.unsplash.com/photo-1582058091505-f87a2e55a40f?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80';
+                }
+
+                // Validation
+                if (!name || !category || !price || !weight || !stock) {
+                    alert('Veuillez remplir tous les champs obligatoires (*)');
+                    return;
+                }
+
+                console.log('Sauvegarde du produit:', { productId, name, category, price, stock, image });
+
+                try {
+                    // Charger les produits existants
+                    const data = JSON.parse(localStorage.getItem('aadeliceProducts')) || { products: [] };
+
+                    if (productId) {
+                        // Mettre à jour un produit existant
+                        const index = data.products.findIndex(p => p.id == productId);
+                        if (index !== -1) {
+                            const updatedProduct = {
+                                ...data.products[index],
+                                name,
+                                category,
+                                price,
+                                stock,
+                                description: description || '',
+                                rating: rating || 4,
+                                reviews: reviews || 0,
+                                weight,
+                                image
+                            };
+
+                            // Gestion de l'image uploadée
+                            if (fileInput.files.length > 0) {
+                                const file = fileInput.files[0];
+                                const reader = new FileReader();
+                                reader.onload = (event) => {
+                                    updatedProduct.image = event.target.result;
+                                    data.products[index] = updatedProduct;
+                                    this.finalizeProductSave(data, productId);
+                                };
+                                reader.readAsDataURL(file);
+                            } else {
+                                data.products[index] = updatedProduct;
+                                this.finalizeProductSave(data, productId);
+                            }
+                        }
+                    } else {
+                        // Créer un nouveau produit
+                        const newId = data.products.length > 0 ?
+                            Math.max(...data.products.map(p => p.id)) + 1 : 1;
+
+                        const newProduct = {
+                            id: newId,
+                            name,
+                            category,
+                            price,
+                            stock,
+                            description: description || '',
+                            rating: rating || 4,
+                            reviews: reviews || 0,
+                            weight,
+                            image,
+                            dateAdded: new Date().toISOString()
+                        };
+
+                        // Gestion de l'image uploadée
+                        if (fileInput.files.length > 0) {
+                            const file = fileInput.files[0];
+                            const reader = new FileReader();
+                            reader.onload = (event) => {
+                                newProduct.image = event.target.result;
+                                data.products.push(newProduct);
+                                this.finalizeProductSave(data, newId);
+                            };
+                            reader.readAsDataURL(file);
+                        } else {
+                            data.products.push(newProduct);
+                            this.finalizeProductSave(data, newId);
+                        }
+                    }
+
+                } catch (error) {
+                    console.error('Erreur lors de la sauvegarde:', error);
+                    alert('Une erreur est survenue lors de la sauvegarde');
+                }
+            }
+
+            finalizeProductSave(data, productId = null) {
+                // Sauvegarder dans localStorage
+                localStorage.setItem('aadeliceProducts', JSON.stringify(data));
+
+                console.log('Produit sauvegardé dans localStorage');
+
+                // Afficher un message de succès
+                const message = productId ? 'Produit mis à jour avec succès!' : 'Produit ajouté avec succès!';
+                this.showNotification(message);
+
+                // Recharger les produits
+                this.loadProducts();
+
+                // Retourner à la liste
+                setTimeout(() => {
+                    this.showProductList();
+                }, 1000);
+            }
+
+            async deleteProduct(productId) {
+                if (!confirm('Êtes-vous sûr de vouloir supprimer ce produit ?')) {
+                    return;
+                }
+
+                try {
+                    const data = JSON.parse(localStorage.getItem('aadeliceProducts')) || { products: [] };
+                    const index = data.products.findIndex(p => p.id == productId);
+
+                    if (index !== -1) {
+                        data.products.splice(index, 1);
+                        localStorage.setItem('aadeliceProducts', JSON.stringify(data));
+
+                        // Recharger la liste
+                        this.loadProducts();
+                        this.showNotification('Produit supprimé avec succès!');
+                    }
+                } catch (error) {
+                    console.error('Erreur lors de la suppression:', error);
+                    alert('Une erreur est survenue lors de la suppression');
+                }
+            }
+
+            loadOrders() {
+                // Simuler le chargement des commandes
+                setTimeout(() => {
+                    document.getElementById('recentOrdersTable').innerHTML = `
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>N° Commande</th>
+                                    <th>Client</th>
+                                    <th>Date</th>
+                                    <th>Montant</th>
+                                    <th>Statut</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>#ADL-001</td>
+                                    <td>Moussa Diop</td>
+                                    <td>15/12/2023</td>
+                                    <td>15.500 FCFA</td>
+                                    <td><span class="order-status-badge status-confirmed">Confirmée</span></td>
+                                </tr>
+                                <tr>
+                                    <td>#ADL-002</td>
+                                    <td>Fatou Ndiaye</td>
+                                    <td>14/12/2023</td>
+                                    <td>8.200 FCFA</td>
+                                    <td><span class="order-status-badge status-delivered">Livrée</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    `;
+                }, 500);
+            }
+
+            filterOrders(status) {
+                this.currentOrdersPage = 1;
+                this.loadOrders();
+            }
+
+            loadOrderDetail(orderId) {
+                // Simuler le chargement des détails de commande
+                setTimeout(() => {
+                    document.getElementById('orderDetailContent').innerHTML = `
+                        <div class="alert alert-info">
+                            Détails de la commande #${orderId} (fonctionnalité à implémenter)
+                        </div>
+                    `;
+                }, 500);
+            }
+
+            loadCustomers() {
+                // Simuler le chargement des clients
+                console.log('Chargement des clients...');
+            }
+
+            loadSettings() {
+                const settings = JSON.parse(localStorage.getItem('aadeliceSettings')) || this.getDefaultSettings();
+
+                // Remplir le formulaire
+                document.getElementById('shopName').value = settings.shopName;
+                document.getElementById('shopPhone').value = settings.shopPhone;
+                document.getElementById('shopAddress').value = settings.shopAddress;
+                document.getElementById('shopWhatsApp').value = settings.shopWhatsApp;
+                document.getElementById('shopEmail').value = settings.shopEmail;
+                document.getElementById('freeShippingMin').value = settings.freeShippingMin;
+                document.getElementById('deliveryCost').value = settings.deliveryCost;
+                document.getElementById('adminUsername').value = settings.adminUsername;
+
+                // Charger les messages WhatsApp
+                document.getElementById('welcomeMessage').value = settings.whatsappMessages.welcome;
+                document.getElementById('orderConfirmMessage').value = settings.whatsappMessages.orderConfirm;
+            }
+
+            getDefaultSettings() {
+                return {
+                    shopName: "Aadelice Dakar",
+                    shopPhone: "+221771635858",
+                    shopAddress: "Dakar Ouest Foire, Sénégal",
+                    shopWhatsApp: "+221771635858",
+                    shopEmail: "",
+                    freeShippingMin: 10000,
+                    deliveryCost: 1500,
+                    adminUsername: "aadelice_admin",
+                    adminPassword: "dakar_2023",
+                    whatsappMessages: {
+                        welcome: "Bonjour ! 👋 \nBienvenue chez Aadelice Dakar ! 🍬\nJe suis là pour vous aider avec vos commandes de bonbons.\nQue désirez-vous aujourd'hui ? 😊",
+                        orderConfirm: "✅ Commande confirmée !\nMerci pour votre commande chez Aadelice Dakar.\nVotre commande n°{ORDER_ID} d'un montant de {TOTAL} FCFA a été enregistrée.\nElle sera préparée et livrée sous 24h.\nNous vous contacterons pour la livraison. 📦"
+                    }
+                };
+            }
+
+            saveSettings() {
+                const settings = {
+                    shopName: document.getElementById('shopName').value,
+                    shopPhone: document.getElementById('shopPhone').value,
+                    shopAddress: document.getElementById('shopAddress').value,
+                    shopWhatsApp: document.getElementById('shopWhatsApp').value,
+                    shopEmail: document.getElementById('shopEmail').value,
+                    freeShippingMin: parseInt(document.getElementById('freeShippingMin').value),
+                    deliveryCost: parseInt(document.getElementById('deliveryCost').value),
+                    adminUsername: document.getElementById('adminUsername').value,
+                    adminPassword: "dakar_2023",
+                    whatsappMessages: {
+                        welcome: document.getElementById('welcomeMessage').value,
+                        orderConfirm: document.getElementById('orderConfirmMessage').value
+                    }
+                };
+
+                localStorage.setItem('aadeliceSettings', JSON.stringify(settings));
+                this.showNotification('Paramètres enregistrés avec succès !');
+
+                // Mettre à jour le lien WhatsApp
+                document.getElementById('whatsappLink').value = `https://wa.me/221${settings.shopWhatsApp.replace(/\D/g, '')}`;
+            }
+
+            resetSettings() {
+                const defaultSettings = this.getDefaultSettings();
+                localStorage.setItem('aadeliceSettings', JSON.stringify(defaultSettings));
+                this.loadSettings();
+                this.showNotification('Paramètres réinitialisés avec succès !');
+            }
+
+            saveWhatsAppMessages() {
+                const settings = JSON.parse(localStorage.getItem('aadeliceSettings')) || this.getDefaultSettings();
+
+                settings.whatsappMessages = {
+                    welcome: document.getElementById('welcomeMessage').value,
+                    orderConfirm: document.getElementById('orderConfirmMessage').value
+                };
+
+                localStorage.setItem('aadeliceSettings', JSON.stringify(settings));
+                this.showNotification('Messages WhatsApp enregistrés !');
+            }
+
+            exportOrders() {
+                this.showNotification('Export des commandes démarré !');
+            }
+
+            showNotification(message) {
+                // Créer une notification temporaire
+                const notification = document.createElement('div');
+                notification.className = 'position-fixed top-0 end-0 m-3 p-3 bg-success text-white rounded-3 shadow';
+                notification.style.zIndex = '1060';
+                notification.innerHTML = `
+                    <i class="fas fa-check-circle me-2"></i>
+                    ${message}
+                `;
+                document.body.appendChild(notification);
+
+                setTimeout(() => {
+                    notification.remove();
+                }, 3000);
+            }
+        }
+
+        // Vérification d'authentification au chargement
+        document.addEventListener('DOMContentLoaded', function () {
+            console.log('Admin.html chargé, vérification en cours...');
+
+            const authOverlay = document.getElementById('authOverlay');
+            const authMessage = document.getElementById('authMessage');
+            const adminContent = document.querySelector('.admin-content');
+
+            // Vérifier l'authentification
+            const auth = localStorage.getItem('aadeliceAdminAuth');
+
+            if (!auth) {
+                console.log('Non authentifié, redirection vers index.html');
+                authMessage.textContent = 'Non authentifié. Redirection...';
+
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 1500);
+                return;
+            }
+
+            try {
+                const authData = JSON.parse(auth);
+                const now = new Date().getTime();
+
+                // Vérifier l'expiration (8 heures)
+                if (now - authData.timestamp > 8 * 60 * 60 * 1000) {
+                    console.log('Session expirée, redirection');
+                    authMessage.textContent = 'Session expirée. Redirection...';
+                    localStorage.removeItem('aadeliceAdminAuth');
+
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 1500);
+                    return;
+                }
+
+                console.log('Authentifié en tant que:', authData.username);
+
+                // Authentification réussie - afficher le contenu admin
+                setTimeout(() => {
+                    authMessage.textContent = 'Authentification réussie !';
+
+                    setTimeout(() => {
+                        authOverlay.classList.add('hidden');
+                        adminContent.classList.add('visible');
+
+                        // Initialiser l'admin manager
+                        window.adminManager = new AdminManagerDakar();
+                    }, 500);
+                }, 1000);
+
+            } catch (error) {
+                console.error('Erreur vérification auth:', error);
+                authMessage.textContent = 'Erreur d\'authentification. Redirection...';
+
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 1500);
+            }
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Panier - Aadelice</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Quicksand:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Styles -->
+     <link rel="shortcut icon" href="images/Aadelice_logo.png" type="image/x-icon">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/cart.css">
+    <style>
+        .shipping-zone {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .shipping-zone:hover {
+            border-color: var(--primary);
+            background-color: rgba(231, 0, 126, 0.05);
+        }
+        
+        .shipping-zone.selected {
+            border-color: var(--primary);
+            background-color: rgba(231, 0, 126, 0.1);
+        }
+        
+        .shipping-zone-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .shipping-zone-details h6 {
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+        
+        .shipping-zone-details p {
+            margin-bottom: 0;
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .shipping-zone-price {
+            font-weight: 600;
+            color: var(--primary);
+        }
+        
+        .wave-payment-section {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+        
+        .wave-logo {
+            color: #21D07D;
+            font-size: 24px;
+        }
+        
+        .payment-divider {
+            text-align: center;
+            margin: 20px 0;
+            position: relative;
+        }
+        
+        .payment-divider::before {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background-color: #ddd;
+        }
+        
+        .payment-divider span {
+            background-color: white;
+            padding: 0 15px;
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .payment-info {
+            font-size: 12px;
+            color: #666;
+            margin-top: 10px;
+        }
+        
+        .delivery-time {
+            display: inline-block;
+            background-color: #e8f5e9;
+            color: #2e7d32;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white sticky-top shadow-sm py-3">
+        <div class="container">
+               <a class="navbar-brand d-flex align-items-center" href="index.html">
+                <div class="logo-container me-2">
+                    <div class="logo-circle">
+                        <img src="images/Aadelice_logo.png" alt="Logo Aadelice">
+                    </div>
+                </div>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav mx-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">Accueil</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html#produits">Bonbons</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html#categories">Catégories</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html#about">À propos</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html#contact">Contact</a>
+                    </li>
+                </ul>
+                <div class="d-flex align-items-center">
+                    <a href="cart.html" class="cart-icon me-4">
+                        <i class="fas fa-shopping-bag"></i>
+                        <span class="cart-count">0</span>
+                    </a>
+                    <a href="admin.html" class="btn btn-primary-custom">Admin</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page Panier -->
+    <section class="cart-page">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8">
+                    <h1 class="cart-page-title">Mon panier</h1>
+                    
+                    <div class="cart-items-container">
+                        <div id="cartItemsList">
+                            <!-- Les articles du panier seront chargés ici -->
+                        </div>
+                        
+                        <div id="emptyCart" class="cart-empty">
+                            <div class="cart-empty-icon">
+                                <i class="fas fa-shopping-bag"></i>
+                            </div>
+                            <h3 class="cart-empty-title">Votre panier est vide</h3>
+                            <p class="text-muted mb-4">Ajoutez des délices pour les voir apparaître ici</p>
+                            <a href="index.html" class="btn btn-primary-custom">Découvrir nos bonbons</a>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between mt-4" id="cartActions">
+                        <a href="index.html" class="btn-continue-shopping">
+                            <i class="fas fa-arrow-left me-2"></i>Continuer mes achats
+                        </a>
+                        <button class="btn btn-outline-primary-custom" id="clearCartBtn">
+                            <i class="fas fa-trash me-2"></i>Vider le panier
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="col-lg-4">
+                    <div class="cart-summary">
+                        <h3 class="summary-title">Récapitulatif</h3>
+                        
+                        <div class="summary-row">
+                            <span class="summary-label">Sous-total</span>
+                            <span class="summary-value" id="subtotal">0 FCFA</span>
+                        </div>
+                        
+                        <div class="summary-row">
+                            <span class="summary-label">Livraison</span>
+                            <span class="summary-value" id="shippingCost">0 FCFA</span>
+                        </div>
+                        
+                        <div class="summary-row">
+                            <span class="summary-label">Réduction</span>
+                            <span class="summary-value" id="discount">-0 FCFA</span>
+                        </div>
+                        
+                        <div class="summary-row">
+                            <span class="summary-label">Total TTC</span>
+                            <span class="summary-value summary-total" id="total">0 FCFA</span>
+                        </div>
+                        
+                        <p class="summary-shipping">
+                            <i class="fas fa-truck me-2"></i>
+                            Livraison offerte à partir de 10.000 FCFA d'achat
+                        </p>
+                        
+                        <!-- Options de livraison - Zones de Dakar -->
+                        <div class="mb-4">
+                            <h6 class="mb-3">Choisissez votre zone de livraison Dakar</h6> 
+                            
+                            <div class="shipping-zone" data-zone="Zone 2" data-price="1000">
+                                <div class="shipping-zone-content">
+                                    <div class="shipping-zone-details">
+                                        <h6>Zone 1 - Liberté / Ouest Foire</h6>
+                                        <p>Liberté 5, Liberté 6, HLM, Ouest Foire, Nord Foir, Grand Yoff</p>
+                                        <span class="delivery-time">Livraison: 2-3h</span>
+                                    </div>
+                                    <div class="shipping-zone-price">1.000 FCFA</div>
+                                </div>
+                            </div>
+                            
+                            <div class="shipping-zone" data-zone="Zone 3" data-price="1500">
+                                <div class="shipping-zone-content">
+                                    <div class="shipping-zone-details">
+                                        <h6>Zone 2 - Almadies / Mermoz</h6>
+                                        <p>Almadies, Mermoz, Sacré-Cœur, Ngor, Ouakam</p>
+                                        <span class="delivery-time">Livraison: 3-4h</span>
+                                    </div>
+                                    <div class="shipping-zone-price">1.500 FCFA</div>
+                                </div>
+                            </div>
+
+                            <div class="shipping-zone" data-zone="Zone 1" data-price="500">
+                                <div class="shipping-zone-content">
+                                    <div class="shipping-zone-details">
+                                        <h6>Zone 3 - Centre Ville</h6>
+                                        <p>Plateau, Médina, Gueule Tapée, Colobane</p>
+                                        <span class="delivery-time">Livraison: 1-2h</span>
+                                    </div>
+                                    <div class="shipping-zone-price">2000 FCFA</div>
+                                </div>
+                            </div>
+                            
+                            <div class="shipping-zone" data-zone="Zone 4" data-price="2000">
+                                <div class="shipping-zone-content">
+                                    <div class="shipping-zone-details">
+                                        <h6>Zone 4 - Parcelles / Nord</h6>
+                                        <p>Parcelles Assainies, Cambérène, Patte d'Oie, Dieuppeul</p>
+                                        <span class="delivery-time">Livraison: 4-5h</span>
+                                    </div>
+                                    <div class="shipping-zone-price">2.000 FCFA</div>
+                                </div>
+                            </div>
+                            
+                            <div class="shipping-zone" data-zone="Zone 5" data-price="2500">
+                                <div class="shipping-zone-content">
+                                    <div class="shipping-zone-details">
+                                        <h6>Zone 5 - Pikine / Guédiawaye</h6>
+                                        <p>Pikine, Guédiawaye, Thiaroye, Keur Massar</p>
+                                        <span class="delivery-time">Livraison: 5-6h</span>
+                                    </div>
+                                    <div class="shipping-zone-price">2.500 FCFA</div>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-2">
+                                <small class="text-muted">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Les zones sont basées sur la distance depuis notre boutique à Ouest Foire
+                                </small>
+                            </div>
+                        </div>
+                        
+                        <!-- Code promo -->
+                        <div class="mb-4">
+                            <label for="promoCode" class="form-label">Code promo</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control-address" id="promoCode" placeholder="Entrez votre code">
+                                <button class="btn btn-outline-primary-custom" type="button" id="applyPromoBtn">
+                                    Appliquer
+                                </button>
+                            </div>
+                            <div id="promoMessage" class="small mt-1"></div>
+                        </div>
+                        
+                        <!-- Options de paiement (UNIQUEMENT Paiement à la livraison et Wave) -->
+                        <div class="mb-4">
+                            <h6 class="mb-3">Mode de paiement</h6>
+                            
+                            <div class="payment-options">
+                                <div class="form-check mb-3">
+                                    <input class="form-check-input" type="radio" name="paymentMethod" id="cashOnDelivery" checked>
+                                    <label class="form-check-label" for="cashOnDelivery">
+                                        <i class="fas fa-money-bill-wave me-2"></i>Paiement à la livraison
+                                    </label>
+                                </div>
+                                
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="paymentMethod" id="wavePayment">
+                                    <label class="form-check-label" for="wavePayment">
+                                        <i class="fab fa-whatsapp me-2 wave-logo"></i>Payer avec Wave
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <!-- Section Wave Business -->
+                            <div class="wave-payment-section d-none" id="wavePaymentSection">
+                                <h6><i class="fab fa-wave me-2 wave-logo"></i>Paiement Wave</h6>
+                                <p class="small mb-3">Cliquez sur le bouton ci-dessous pour procéder au paiement sécurisé via Wave Business :</p>
+                                
+                                <!-- REMPLACEZ CE LIEN PAR VOTRE LIEN MARCHAND WAVE BUSINESS -->
+                                <a href="https://business.wave.com/your-merchant-link" target="_blank" class="btn btn-success w-100 mb-2">
+                                    <i class="fab fa-whatsapp me-2"></i>Payer avec Wave Business
+                                </a>
+                                
+                                <div class="payment-info">
+                                    <i class="fas fa-lock me-1"></i>
+                                    Paiement 100% sécurisé. Après paiement, vous recevrez un SMS de confirmation.
+                                </div>
+                            </div>
+                            
+                            <!-- Paiement à la livraison info -->
+                            <div id="cashOnDeliveryInfo" class="mt-3">
+                                <div class="payment-info">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Le paiement s'effectue en espèces à la livraison. Préparez le montant exact si possible.
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Formulaire d'adresse -->
+                        <form id="addressForm" class="address-form">
+                            <h6 class="address-form-title mb-3">
+                                <i class="fas fa-home me-2"></i>
+                                Informations de livraison
+                            </h6>
+                            
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <input type="text" class="form-control-address" id="firstName" placeholder="Prénom *" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <input type="text" class="form-control-address" id="lastName" placeholder="Nom *" required>
+                                </div>
+                                <div class="col-12">
+                                    <input type="email" class="form-control-address" id="email" placeholder="Email *" required>
+                                </div>
+                                <div class="col-12">
+                                    <input type="tel" class="form-control-address" id="phone" placeholder="Téléphone *" required>
+                                </div>
+                                
+                                <div class="col-12">
+                                    <label class="form-label small">Zone de livraison sélectionnée :</label>
+                                    <div class="alert alert-info py-2" id="selectedZoneDisplay">
+                                        <i class="fas fa-map-marker-alt me-2"></i>
+                                        <span id="zoneText">Aucune zone sélectionnée</span>
+                                        <span class="float-end" id="zonePrice">0 FCFA</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-12">
+                                    <textarea class="form-control-address form-textarea-address" id="address" rows="3" placeholder="Adresse détaillée * (Rue, bâtiment, repères...)" required></textarea>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <input type="text" class="form-control-address" id="city" placeholder="Ville *" value="Dakar" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <input type="text" class="form-control-address" id="quartier" placeholder="Quartier *" required>
+                                </div>
+                                
+                                <div class="col-12">
+                                    <textarea class="form-control-address form-textarea-address" id="deliveryInstructions" rows="2" placeholder="Instructions pour le livreur (optionnel)"></textarea>
+                                </div>
+                            </div>
+                            
+                            <div class="form-check mt-3">
+                                <input class="form-check-input" type="checkbox" id="saveAddress">
+                                <label class="form-check-label" for="saveAddress">
+                                    Enregistrer ces informations pour mes prochaines commandes
+                                </label>
+                            </div>
+                            
+                            <div class="cart-actions mt-4">
+                                <button type="submit" class="btn-checkout" id="checkoutBtn" disabled>
+                                    <i class="fas fa-lock me-2"></i>Passer la commande
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 mb-4">
+                    <div class="footer-logo">Aa<span>delice</span></div>
+                    <p>Depuis 2023, Aadelice réinvente l'art de la confiserie avec des créations uniques qui ravissent petits et grands.</p>
+                    <div class="social-icons">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-tiktok"></i></a>
+                        <a href="mailto:contact@aadelice.sn"><i class="fas fa-envelope"></i></a>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-4 mb-4">
+                    <h5 class="footer-heading">Boutique</h5>
+                    <ul class="footer-links">
+                        <li><a href="index.html#produits">Tous les bonbons</a></li>
+                        <li><a href="#">Nouveautés</a></li>
+                        <li><a href="#">Best-sellers</a></li>
+                        <li><a href="#">Offres spéciales</a></li>
+                        <li><a href="#">Cadeaux</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-2 col-md-4 mb-4">
+                    <h5 class="footer-heading">Informations</h5>
+                    <ul class="footer-links">
+                        <li><a href="#">À propos</a></li>
+                        <li><a href="#">Livraison</a></li>
+                        <li><a href="#">Paiement sécurisé</a></li>
+                        <li><a href="#">FAQ</a></li>
+                        <li><a href="#">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-4 col-md-4 mb-4">
+                    <h5 class="footer-heading">Contact</h5>
+                    <ul class="footer-links">
+                        <li><i class="fas fa-map-marker-alt me-2"></i> Dakar Ouest Foire, Sénégal</li>
+                        <li><i class="fas fa-phone me-2"></i> +221 77 163 58 58</li>
+                        <li><i class="fas fa-envelope me-2"></i> contact@aadelice.sn</li>
+                        <li><i class="fas fa-clock me-2"></i> Lun-Dim: 9h-20h</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2023 Aadelice. Tous droits réservés. | <a href="#" class="text-white">Mentions légales</a> | <a href="#" class="text-white">Politique de confidentialité</a></p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Gestion du panier
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+        let selectedZone = null;
+        let shippingCost = 0;
+        let discount = 0;
+        let promoApplied = false;
+
+        // Mettre à jour le compteur du panier
+        function updateCartCount() {
+            const count = cart.reduce((total, item) => total + item.quantity, 0);
+            document.querySelector('.cart-count').textContent = count;
+            localStorage.setItem('cart', JSON.stringify(cart));
+        }
+
+        // Afficher les articles du panier
+        function displayCartItems() {
+            const cartItemsList = document.getElementById('cartItemsList');
+            const emptyCart = document.getElementById('emptyCart');
+            const cartActions = document.getElementById('cartActions');
+            const checkoutBtn = document.getElementById('checkoutBtn');
+
+            if (cart.length === 0) {
+                cartItemsList.innerHTML = '';
+                emptyCart.classList.remove('d-none');
+                cartActions.style.display = 'none';
+                checkoutBtn.disabled = true;
+                return;
+            }
+
+            emptyCart.classList.add('d-none');
+            cartActions.style.display = 'flex';
+
+            cartItemsList.innerHTML = cart.map(item => `
+                <div class="cart-item" data-id="${item.id}">
+                    <div class="cart-item-image">
+                        <img src="${item.image || 'https://images.unsplash.com/photo-1582058091505-f87a2e55a40f?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80'}" alt="${item.name}">
+                    </div>
+                    <div class="cart-item-details">
+                        <h5 class="cart-item-title">${item.name}</h5>
+                        <div class="cart-item-price">${item.price.toLocaleString()} FCFA</div>
+                    </div>
+                    <div class="cart-item-quantity">
+                        <button class="quantity-btn minus" data-id="${item.id}">-</button>
+                        <span class="quantity">${item.quantity}</span>
+                        <button class="quantity-btn plus" data-id="${item.id}">+</button>
+                    </div>
+                    <div class="cart-item-total">
+                        ${(item.price * item.quantity).toLocaleString()} FCFA
+                    </div>
+                    <div class="cart-item-remove">
+                        <button class="btn-remove" data-id="${item.id}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+
+            updateCartSummary();
+            checkoutBtn.disabled = false;
+        }
+
+        // Mettre à jour le récapitulatif
+        function updateCartSummary() {
+            const subtotal = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
+            
+            // Appliquer la livraison gratuite pour les commandes > 10.000 FCFA
+            if (subtotal >= 10000) {
+                shippingCost = 0;
+            } else if (selectedZone) {
+                shippingCost = selectedZone.price;
+            } else {
+                shippingCost = 0;
+            }
+
+            // Calculer le total
+            const total = subtotal + shippingCost - discount;
+
+            // Mettre à jour l'affichage
+            document.getElementById('subtotal').textContent = subtotal.toLocaleString() + ' FCFA';
+            document.getElementById('shippingCost').textContent = shippingCost.toLocaleString() + ' FCFA';
+            document.getElementById('discount').textContent = '-' + discount.toLocaleString() + ' FCFA';
+            document.getElementById('total').textContent = total.toLocaleString() + ' FCFA';
+
+            // Afficher la zone sélectionnée
+            const zoneDisplay = document.getElementById('selectedZoneDisplay');
+            const zoneText = document.getElementById('zoneText');
+            const zonePrice = document.getElementById('zonePrice');
+
+            if (selectedZone) {
+                zoneText.textContent = selectedZone.name;
+                zonePrice.textContent = selectedZone.price.toLocaleString() + ' FCFA';
+                zoneDisplay.classList.remove('alert-warning');
+                zoneDisplay.classList.add('alert-info');
+            } else {
+                zoneText.textContent = 'Sélectionnez une zone de livraison';
+                zonePrice.textContent = '0 FCFA';
+                zoneDisplay.classList.remove('alert-info');
+                zoneDisplay.classList.add('alert-warning');
+            }
+
+            // Désactiver le bouton de commande si aucune zone n'est sélectionnée
+            const checkoutBtn = document.getElementById('checkoutBtn');
+            if (!selectedZone) {
+                checkoutBtn.disabled = true;
+            }
+        }
+
+        // Gérer les zones de livraison
+        function setupShippingZones() {
+            document.querySelectorAll('.shipping-zone').forEach(zone => {
+                zone.addEventListener('click', function() {
+                    // Retirer la sélection précédente
+                    document.querySelectorAll('.shipping-zone').forEach(z => {
+                        z.classList.remove('selected');
+                    });
+
+                    // Sélectionner la nouvelle zone
+                    this.classList.add('selected');
+
+                    // Enregistrer la zone sélectionnée
+                    selectedZone = {
+                        name: this.dataset.zone,
+                        price: parseInt(this.dataset.price)
+                    };
+
+                    // Mettre à jour le récapitulatif
+                    updateCartSummary();
+                });
+            });
+        }
+
+        // Gérer les options de paiement (uniquement Paiement à la livraison et Wave)
+        function setupPaymentOptions() {
+            const wavePaymentSection = document.getElementById('wavePaymentSection');
+            const cashOnDeliveryInfo = document.getElementById('cashOnDeliveryInfo');
+
+            document.querySelectorAll('input[name="paymentMethod"]').forEach(radio => {
+                radio.addEventListener('change', function() {
+                    if (this.id === 'wavePayment') {
+                        wavePaymentSection.classList.remove('d-none');
+                        cashOnDeliveryInfo.classList.add('d-none');
+                    } else {
+                        wavePaymentSection.classList.add('d-none');
+                        cashOnDeliveryInfo.classList.remove('d-none');
+                    }
+                });
+            });
+        }
+
+        // Gérer le code promo
+        function setupPromoCode() {
+            document.getElementById('applyPromoBtn').addEventListener('click', function() {
+                const promoCode = document.getElementById('promoCode').value.trim();
+                const promoMessage = document.getElementById('promoMessage');
+
+                // Codes promo disponibles
+                const promoCodes = {
+                    'AADELICE10': 10, // 10% de réduction
+                    'BIENVENUE': 15,  // 15% de réduction
+                    'LIVRAISON': 1000 // 1000 FCFA de réduction
+                };
+
+                if (promoCode in promoCodes) {
+                    const subtotal = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
+                    
+                    if (promoCode === 'LIVRAISON') {
+                        discount = 1000;
+                    } else {
+                        discount = (subtotal * promoCodes[promoCode]) / 100;
+                    }
+
+                    promoMessage.textContent = `Code promo appliqué : ${discount.toLocaleString()} FCFA de réduction`;
+                    promoMessage.style.color = 'green';
+                    promoApplied = true;
+                } else {
+                    discount = 0;
+                    promoMessage.textContent = 'Code promo invalide';
+                    promoMessage.style.color = 'red';
+                    promoApplied = false;
+                }
+
+                updateCartSummary();
+            });
+        }
+
+        // Gérer les événements
+        document.addEventListener('DOMContentLoaded', function() {
+            updateCartCount();
+            displayCartItems();
+            setupShippingZones();
+            setupPaymentOptions();
+            setupPromoCode();
+
+            // Gérer les changements de quantité
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('quantity-btn') || e.target.closest('.quantity-btn')) {
+                    const btn = e.target.classList.contains('quantity-btn') ? e.target : e.target.closest('.quantity-btn');
+                    const id = parseInt(btn.dataset.id);
+                    const item = cart.find(item => item.id === id);
+                    
+                    if (btn.classList.contains('plus')) {
+                        item.quantity++;
+                    } else if (btn.classList.contains('minus') && item.quantity > 1) {
+                        item.quantity--;
+                    }
+                    
+                    updateCartCount();
+                    displayCartItems();
+                }
+
+                // Supprimer un article
+                if (e.target.classList.contains('btn-remove') || e.target.closest('.btn-remove')) {
+                    const btn = e.target.classList.contains('btn-remove') ? e.target : e.target.closest('.btn-remove');
+                    const id = parseInt(btn.dataset.id);
+                    cart = cart.filter(item => item.id !== id);
+                    
+                    updateCartCount();
+                    displayCartItems();
+                }
+            });
+
+            // Vider le panier
+            document.getElementById('clearCartBtn').addEventListener('click', function() {
+                if (confirm('Voulez-vous vraiment vider votre panier ?')) {
+                    cart = [];
+                    updateCartCount();
+                    displayCartItems();
+                }
+            });
+
+            // Soumission du formulaire
+            document.getElementById('addressForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                if (cart.length === 0) {
+                    alert('Votre panier est vide !');
+                    return;
+                }
+
+                if (!selectedZone) {
+                    alert('Veuillez sélectionner une zone de livraison.');
+                    return;
+                }
+
+                // Récupérer les données du formulaire
+                const formData = {
+                    firstName: document.getElementById('firstName').value,
+                    lastName: document.getElementById('lastName').value,
+                    email: document.getElementById('email').value,
+                    phone: document.getElementById('phone').value,
+                    address: document.getElementById('address').value,
+                    city: document.getElementById('city').value,
+                    quartier: document.getElementById('quartier').value,
+                    instructions: document.getElementById('deliveryInstructions').value,
+                    zone: selectedZone.name,
+                    paymentMethod: document.querySelector('input[name="paymentMethod"]:checked').id
+                };
+
+                // Calculer les totaux
+                const subtotal = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
+                const total = subtotal + shippingCost - discount;
+
+                // Générer le résumé de commande
+                const orderSummary = cart.map(item => 
+                    `${item.name} x${item.quantity}: ${(item.price * item.quantity).toLocaleString()} FCFA`
+                ).join('\n');
+
+                const message = `NOUVELLE COMMANDE AADELICE\n\n` +
+                               `Client: ${formData.firstName} ${formData.lastName}\n` +
+                               `Téléphone: ${formData.phone}\n` +
+                               `Email: ${formData.email}\n` +
+                               `Adresse: ${formData.address}\n` +
+                               `Quartier: ${formData.quartier}\n` +
+                               `Zone: ${formData.zone}\n` +
+                               `Instructions: ${formData.instructions || 'Aucune'}\n\n` +
+                               `COMMANDE:\n${orderSummary}\n\n` +
+                               `Sous-total: ${subtotal.toLocaleString()} FCFA\n` +
+                               `Livraison: ${shippingCost.toLocaleString()} FCFA\n` +
+                               `Réduction: ${discount.toLocaleString()} FCFA\n` +
+                               `TOTAL: ${total.toLocaleString()} FCFA\n\n` +
+                               `Mode de paiement: ${formData.paymentMethod === 'cashOnDelivery' ? 'Paiement à la livraison' : 'Wave'}`;
+
+                // Ici, normalement vous enverriez ces données à votre serveur
+                // Pour cet exemple, nous affichons juste une confirmation
+                alert(`Commande envoyée avec succès !\n\nNotre équipe vous contactera au ${formData.phone} pour confirmer.\n\nVous pouvez aussi nous appeler au 77 163 58 58.`);
+
+                // Réinitialiser le panier
+                cart = [];
+                localStorage.removeItem('cart');
+                updateCartCount();
+                displayCartItems();
+                this.reset();
+                
+                // Réinitialiser les sélections
+                document.querySelectorAll('.shipping-zone').forEach(z => {
+                    z.classList.remove('selected');
+                });
+                selectedZone = null;
+                discount = 0;
+                updateCartSummary();
+            });
+        });
+    </script>
+</body>
+</html>
