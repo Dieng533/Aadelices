@@ -6,6 +6,7 @@ $db = $database->getConnection();
 
 $error_message = '';
 $success_message = '';
+$order_id = '';
 
 // Traitement du formulaire de commande
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_order'])) {
@@ -39,10 +40,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_order'])) {
         
         // 3. Créer la commande
         $order_id = 'ADL-' . date('Ymd') . '-' . strtoupper(substr(uniqid(), -6));
+        $payment_method = $_POST['payment_method'] ?? 'cash';
         
         $query = "INSERT INTO orders (id, customer_id, total_amount, shipping_amount, discount_amount, 
-                  final_amount, shipping_zone, delivery_address, delivery_instructions, payment_method) 
-                  VALUES (:id, :customer_id, :total, :shipping, :discount, :final, :zone, :address, :instructions, :payment)";
+                  final_amount, shipping_zone, delivery_address, delivery_instructions, payment_method, status) 
+                  VALUES (:id, :customer_id, :total, :shipping, :discount, :final, :zone, :address, :instructions, :payment, :status)";
         $stmt = $db->prepare($query);
         
         $stmt->execute([
@@ -55,7 +57,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_order'])) {
             ':zone' => $_POST['zone'] ?? '',
             ':address' => $_POST['address'],
             ':instructions' => $_POST['instructions'] ?? '',
-            ':payment' => $_POST['payment_method'] ?? 'cash'
+            ':payment' => $payment_method,
+            ':status' => $payment_method === 'wave' ? 'pending_payment' : 'pending'
         ]);
         
         // 4. Ajouter les articles de la commande
@@ -95,9 +98,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_order'])) {
         // Valider la transaction
         $db->commit();
         
-        // Rediriger vers la page de confirmation
-        header("Location: order_confirmation.php?id=" . urlencode($order_id));
-        exit;
+        // Si paiement Wave, rediriger vers la page de paiement Wave
+        if ($payment_method === 'wave') {
+            // Construire l'URL Wave avec les paramètres de la commande
+            $wave_url = "https://pay.wave.com/m/M_sn_c4ENmbvHHlp4/c/sn/";
+            $wave_url .= "?amount=" . urlencode($total);
+            $wave_url .= "&order_id=" . urlencode($order_id);
+            $wave_url .= "&customer_name=" . urlencode($_POST['first_name'] . ' ' . $_POST['last_name']);
+            $wave_url .= "&customer_phone=" . urlencode($_POST['phone']);
+            $wave_url .= "&customer_email=" . urlencode($_POST['email']);
+            
+            // Rediriger vers Wave
+            header("Location: " . $wave_url);
+            exit;
+        } else {
+            // Pour paiement à la livraison, rediriger vers la confirmation
+            header("Location: order_confirmation.php?id=" . urlencode($order_id));
+            exit;
+        }
         
     } catch(PDOException $e) {
         $db->rollBack();
@@ -214,7 +232,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_order'])) {
             font-size: 11px;
             margin-top: 5px;
         }
-
+        
         /* Nouveau design du panier */
         .cart-item-modern {
             background: white;
@@ -440,6 +458,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_order'])) {
             line-height: 1;
         }
 
+        /* Bouton de paiement Wave amélioré */
+        .wave-payment-btn {
+            background: linear-gradient(135deg, #21D07D 0%, #1AB168 100%);
+            border: none;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            margin-bottom: 15px;
+        }
+        
+        .wave-payment-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(33, 208, 125, 0.3);
+            color: white;
+        }
+        
+        .wave-payment-btn i {
+            font-size: 1.3rem;
+        }
+        
         /* Responsive */
         @media (max-width: 768px) {
             .cart-item-modern {
@@ -461,6 +507,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_order'])) {
                 align-items: flex-start;
                 padding-top: 15px;
                 border-top: 1px solid #f0f0f0;
+            }
+            
+            .wave-payment-btn {
+                padding: 12px;
+                font-size: 1rem;
             }
         }
     </style>
@@ -675,22 +726,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_order'])) {
                                 </div>
                             </div>
                             
-                            <!-- Section Wave Business -->
-                            <div class="wave-payment-section d-none" id="wavePaymentSection">
-                                <h6><i class="fas fa-mobile-alt me-2 wave-logo"></i>Paiement Wave</h6>
-                                <p class="small mb-3">Cliquez sur le bouton ci-dessous pour procéder au paiement sécurisé via Wave Business :</p>
-                                
-                                <a href="https://business.wave.com/your-merchant-link" target="_blank" class="btn btn-success w-100 mb-2">
-                                    <i class="fas fa-mobile-alt me-2"></i>Payer avec Wave Business
-                                </a>
-                                
-                                <div class="payment-info">
-                                    <i class="fas fa-lock me-1"></i>
-                                    Paiement 100% sécurisé. Après paiement, vous recevrez un SMS de confirmation.
-                                </div>
-                            </div>
-                            
-                            <!-- Paiement à la livraison info -->
+                            <!-- Informations de paiement -->
                             <div id="cashOnDeliveryInfo" class="mt-3">
                                 <div class="payment-info">
                                     <i class="fas fa-info-circle me-1"></i>
@@ -702,14 +738,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_order'])) {
                         <!-- Formulaire d'adresse -->
                         <form id="addressForm" class="address-form" method="POST" action="cart.php">
                             <input type="hidden" name="submit_order" value="1">
-                        <input type="hidden" name="cart_items" id="cartItemsInput">
-                        <input type="hidden" name="subtotal" id="subtotalInput">
-                        <input type="hidden" name="shipping" id="shippingInput">
-                        <input type="hidden" name="discount" id="discountInput">
-                        <input type="hidden" name="total" id="totalInput">
-                        <input type="hidden" name="zone" id="zoneInput">
-                        <input type="hidden" name="instructions" id="instructionsInput">
-                        <input type="hidden" name="payment_method" id="paymentMethodInput">
+                            <input type="hidden" name="cart_items" id="cartItemsInput">
+                            <input type="hidden" name="subtotal" id="subtotalInput">
+                            <input type="hidden" name="shipping" id="shippingInput">
+                            <input type="hidden" name="discount" id="discountInput">
+                            <input type="hidden" name="total" id="totalInput">
+                            <input type="hidden" name="zone" id="zoneInput">
+                            <input type="hidden" name="instructions" id="instructionsInput">
+                            <input type="hidden" name="payment_method" id="paymentMethodInput">
                         
                             <h6 class="address-form-title mb-3">
                                 <i class="fas fa-home me-2"></i>
@@ -763,11 +799,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_order'])) {
                             </div>
                             
                             <div class="cart-actions mt-4">
-                                <button type="submit" class="btn-checkout" id="checkoutBtn" disabled>
-                            <i class="fas fa-lock me-2"></i>Passer la commande
-                        </button>
+                                <!-- Le bouton sera généré dynamiquement selon le mode de paiement -->
                             </div>
-                    </form>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -833,6 +867,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_order'])) {
         let shippingCost = 0;
         let discount = 0;
         let promoApplied = false;
+        let paymentMethod = 'cash';
 
         // Mettre à jour le compteur du panier
         function updateCartCount() {
@@ -849,13 +884,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_order'])) {
             const cartItemsList = document.getElementById('cartItemsList');
             const emptyCart = document.getElementById('emptyCart');
             const cartActions = document.getElementById('cartActions');
-            const checkoutBtn = document.getElementById('checkoutBtn');
+            const cartActionsDiv = document.querySelector('.cart-actions');
             
             if (cart.length === 0) {
                 cartItemsList.innerHTML = '';
                 emptyCart.classList.remove('d-none');
                 if (cartActions) cartActions.style.display = 'none';
-                if (checkoutBtn) checkoutBtn.disabled = true;
+                if (cartActionsDiv) cartActionsDiv.innerHTML = '';
                 return;
             }
             
@@ -881,8 +916,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_order'])) {
                             <div class="cart-item-price-modern">
                                 <span class="price-label">Prix unitaire:</span>
                                 <span class="price-value">${item.price.toLocaleString('fr-FR')} FCFA</span>
-                    </div>
-                    </div>
+                            </div>
+                        </div>
                         <div class="cart-item-controls">
                             <div class="quantity-controls">
                                 <button class="quantity-btn-modern quantity-decrease" data-id="${item.id}" title="Diminuer">
@@ -891,10 +926,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_order'])) {
                                 <div class="quantity-display">
                                     <span class="quantity-value">${item.quantity}</span>
                                     <span class="quantity-label">unité(s)</span>
-                    </div>
+                                </div>
                                 <button class="quantity-btn-modern quantity-increase" data-id="${item.id}" title="Augmenter">
                                     <i class="fas fa-plus"></i>
-                    </button>
+                                </button>
                             </div>
                             <div class="cart-item-total-modern">
                                 <span class="total-label">Total:</span>
@@ -906,7 +941,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_order'])) {
             `).join('');
 
             updateCartSummary();
-            if (checkoutBtn) checkoutBtn.disabled = false;
+            updatePaymentButton();
         }
 
         // Mettre à jour le récapitulatif
@@ -952,11 +987,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_order'])) {
                 zoneDisplay.classList.remove('alert-info');
                 zoneDisplay.classList.add('alert-warning');
             }
+        }
 
-            // Désactiver le bouton de commande si aucune zone n'est sélectionnée
-            const checkoutBtn = document.getElementById('checkoutBtn');
-            if (checkoutBtn) {
-                checkoutBtn.disabled = !selectedZone;
+        // Mettre à jour le bouton de paiement selon le mode choisi
+        function updatePaymentButton() {
+            const cartActionsDiv = document.querySelector('.cart-actions');
+            if (!cartActionsDiv) return;
+            
+            if (!selectedZone || cart.length === 0) {
+                cartActionsDiv.innerHTML = `
+                    <button type="button" class="btn-checkout" disabled style="opacity: 0.7;">
+                        <i class="fas fa-lock me-2"></i>Complétez les informations
+                    </button>
+                `;
+                return;
+            }
+            
+            // Calculer le total pour l'affichage
+            const subtotal = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
+            const total = subtotal + shippingCost - discount;
+            
+            if (paymentMethod === 'cash') {
+                cartActionsDiv.innerHTML = `
+                    <button type="submit" class="btn-checkout">
+                        <i class="fas fa-lock me-2"></i>Commander (${total.toLocaleString('fr-FR')} FCFA)
+                    </button>
+                    <div class="payment-info text-center mt-2">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Vous paierez à la livraison
+                    </div>
+                `;
+            } else {
+                cartActionsDiv.innerHTML = `
+                    <button type="submit" class="btn-checkout">
+                        <i class="fas fa-mobile-alt me-2"></i>Payer avec Wave (${total.toLocaleString('fr-FR')} FCFA)
+                    </button>
+                    <div class="payment-info text-center mt-2">
+                        <i class="fas fa-lock me-1"></i>
+                        Redirection vers Wave pour un paiement sécurisé
+                    </div>
+                `;
             }
         }
 
@@ -978,26 +1048,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_order'])) {
                         price: parseInt(this.dataset.price)
                     };
 
-                    // Mettre à jour le récapitulatif
+                    // Mettre à jour le récapitulatif et le bouton
                     updateCartSummary();
+                    updatePaymentButton();
                 });
             });
         }
 
         // Gérer les options de paiement
         function setupPaymentOptions() {
-            const wavePaymentSection = document.getElementById('wavePaymentSection');
-            const cashOnDeliveryInfo = document.getElementById('cashOnDeliveryInfo');
-
             document.querySelectorAll('input[name="paymentMethod"]').forEach(radio => {
                 radio.addEventListener('change', function() {
                     if (this.id === 'wavePayment') {
-                        if (wavePaymentSection) wavePaymentSection.classList.remove('d-none');
-                        if (cashOnDeliveryInfo) cashOnDeliveryInfo.classList.add('d-none');
+                        paymentMethod = 'wave';
                     } else {
-                        if (wavePaymentSection) wavePaymentSection.classList.add('d-none');
-                        if (cashOnDeliveryInfo) cashOnDeliveryInfo.classList.remove('d-none');
+                        paymentMethod = 'cash';
                     }
+                    
+                    // Mettre à jour le bouton de paiement
+                    updatePaymentButton();
                 });
             });
         }
@@ -1041,6 +1110,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_order'])) {
                     }
 
                     updateCartSummary();
+                    updatePaymentButton();
                 });
             }
         }
@@ -1060,7 +1130,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_order'])) {
                     const id = parseInt(btn.dataset.id);
                     const item = cart.find(item => item.id === id);
                     
-            if (item) {
+                    if (item) {
                         if (btn.classList.contains('quantity-increase')) {
                             item.quantity++;
                         } else if (btn.classList.contains('quantity-decrease') && item.quantity > 1) {
@@ -1068,9 +1138,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_order'])) {
                         }
                         
                         updateCartCount();
-                    displayCartItems();
+                        displayCartItems();
+                    }
                 }
-            }
 
                 // Supprimer un article
                 if (e.target.classList.contains('btn-remove-modern') || e.target.closest('.btn-remove-modern')) {
@@ -1090,8 +1160,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_order'])) {
                     if (confirm('Voulez-vous vraiment vider votre panier ?')) {
                         cart = [];
                         updateCartCount();
-            displayCartItems();
-        }
+                        displayCartItems();
+                    }
                 });
             }
 
@@ -1108,6 +1178,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_order'])) {
 
                     if (!selectedZone) {
                         alert('Veuillez sélectionner une zone de livraison.');
+                        return;
+                    }
+
+                    // Valider tous les champs requis
+                    const requiredFields = ['firstName', 'lastName', 'email', 'phone', 'address', 'city', 'quartier'];
+                    let isValid = true;
+                    
+                    requiredFields.forEach(field => {
+                        const input = document.getElementById(field);
+                        if (!input || !input.value.trim()) {
+                            isValid = false;
+                            input.classList.add('is-invalid');
+                        } else {
+                            input.classList.remove('is-invalid');
+                        }
+                    });
+
+                    if (!isValid) {
+                        alert('Veuillez remplir tous les champs obligatoires.');
                         return;
                     }
 
@@ -1132,13 +1221,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_order'])) {
                     if (totalInput) totalInput.value = total;
                     if (zoneInput) zoneInput.value = selectedZone.name;
                     if (instructionsInput) instructionsInput.value = document.getElementById('deliveryInstructions').value;
-                    if (paymentMethodInput) {
-                        const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked');
-                        paymentMethodInput.value = paymentMethod && paymentMethod.id === 'cashOnDelivery' ? 'cash' : 'wave';
-                    }
+                    if (paymentMethodInput) paymentMethodInput.value = paymentMethod;
 
-                    // Soumettre le formulaire
-                    this.submit();
+                    // Afficher un message de chargement
+                    const checkoutBtn = document.querySelector('.btn-checkout');
+                    if (checkoutBtn) {
+                        const originalText = checkoutBtn.innerHTML;
+                        checkoutBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Traitement en cours...';
+                        checkoutBtn.disabled = true;
+                        
+                        // Soumettre le formulaire après un court délai
+                        setTimeout(() => {
+                            this.submit();
+                        }, 500);
+                    } else {
+                        this.submit();
+                    }
                 });
             }
         });

@@ -335,10 +335,10 @@ function generateRatingStars($rating) {
         <div class="container">
             <div class="row align-items-center">
                 <div class="col-lg-6">
-                    <h1 class="hero-title">Découvrez la <span>douceur</span> sénégalaise</h1>
-                    <p class="hero-subtitle">Aadelice vous propose une sélection exclusive de bonbons à Dakar. Des
-                        saveurs acidulées, sucrées et fruitées pour émerveiller vos papilles. Livraison rapide dans tout
-                        Dakar!</p>
+                <h1 class="hero-title">Découvrez la <span>douceur</span> sénégalaise <span class="halal-badge">Halal</span></h1>
+<p class="hero-subtitle">Aadelice vous propose une sélection exclusive de <strong>bonbons 100% Halal</strong> à Dakar. Des
+    saveurs acidulées, sucrées et fruitées certifiées Halal pour émerveiller vos papilles en toute sérénité. Livraison rapide dans tout
+    Dakar!</p>
                     <div class="d-flex flex-wrap gap-3">
                         <a href="#produits" class="btn btn-primary-custom">Explorer la collection</a>
                         <a href="#contact" class="btn btn-secondary-custom">
@@ -356,7 +356,7 @@ function generateRatingStars($rating) {
                                 </div>
                                 <div>
                                     <p class="mb-0 fw-bold">Livraison rapide Dakar</p>
-                                    <p class="mb-0 small text-muted">À partir de 500 FCFA</p>
+                                    <p class="mb-0 small text-muted">À partir de 1000 FCFA</p>
                                 </div>
                             </div>
                         </div>

@@ -11,6 +11,12 @@ if (!isAdminLoggedIn()) {
 $database = new Database();
 $db = $database->getConnection();
 
+// Configuration pour l'upload d'images
+$upload_dir = 'uploads/products/';
+if (!file_exists($upload_dir)) {
+    mkdir($upload_dir, 0777, true);
+}
+
 // Récupérer les statistiques complètes
 function getStatistics($db) {
     $stats = [
@@ -483,6 +489,27 @@ $orders = getOrdersForAdmin($db);
         .form-control:focus, .form-select:focus {
             border-color: var(--primary);
             box-shadow: 0 0 0 0.2rem rgba(230, 0, 126, 0.25);
+        }
+
+        /* Image Preview */
+        .image-preview-container {
+            margin-top: 10px;
+            text-align: center;
+        }
+        
+        .image-preview {
+            max-width: 200px;
+            max-height: 200px;
+            border-radius: 8px;
+            border: 2px dashed #ddd;
+            display: none;
+        }
+        
+        .current-image {
+            max-width: 200px;
+            max-height: 200px;
+            border-radius: 8px;
+            border: 2px solid #ddd;
         }
 
         /* Sections */
@@ -980,8 +1007,9 @@ $orders = getOrdersForAdmin($db);
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <form id="productForm">
+                    <form id="productForm" enctype="multipart/form-data">
                         <input type="hidden" id="productId" name="id">
+                        <input type="hidden" id="currentImage" name="current_image">
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Nom du produit *</label>
@@ -1000,20 +1028,26 @@ $orders = getOrdersForAdmin($db);
                             </div>
                             <div class="col-md-4 mb-3">
                                 <label class="form-label">Prix (FCFA) *</label>
-                                <input type="number" class="form-control" id="productPrice" name="price" step="0.01" required>
+                                <input type="number" class="form-control" id="productPrice" name="price" step="0.01" min="0" required>
                             </div>
                             <div class="col-md-4 mb-3">
                                 <label class="form-label">Stock *</label>
-                                <input type="number" class="form-control" id="productStock" name="stock" required>
+                                <input type="number" class="form-control" id="productStock" name="stock" min="0" required>
                             </div>
                             <div class="col-md-4 mb-3">
                                 <label class="form-label">Poids</label>
                                 <input type="text" class="form-control" id="productWeight" name="weight" placeholder="ex: 100g">
                             </div>
                             <div class="col-12 mb-3">
-                                <label class="form-label">URL de l'image *</label>
-                                <input type="url" class="form-control" id="productImageUrl" name="image_url" required>
-                                <small class="text-muted">Collez l'URL de l'image du produit</small>
+                                <label class="form-label">Image du produit *</label>
+                                <input type="file" class="form-control" id="productImage" name="image" accept="image/*">
+                                <small class="text-muted">Formats acceptés: JPG, PNG, GIF. Taille max: 2MB</small>
+                            </div>
+                            <div class="col-12 mb-3">
+                                <div class="image-preview-container">
+                                    <img id="imagePreview" class="image-preview" alt="Aperçu de l'image">
+                                    <div id="currentImageContainer"></div>
+                                </div>
                             </div>
                             <div class="col-12 mb-3">
                                 <label class="form-label">Description</label>
@@ -1096,11 +1130,29 @@ $orders = getOrdersForAdmin($db);
             });
         });
 
+        // Gestion de l'aperçu de l'image
+        document.getElementById('productImage').addEventListener('change', function(e) {
+            const preview = document.getElementById('imagePreview');
+            const currentImageContainer = document.getElementById('currentImageContainer');
+            
+            if (this.files && this.files[0]) {
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                    currentImageContainer.innerHTML = '';
+                }
+                
+                reader.readAsDataURL(this.files[0]);
+            }
+        });
+
         // Charger les produits
-            function loadProducts() {
-                fetch('admin_ajax.php?action=get_products')
-                    .then(response => response.json())
-                    .then(data => {
+        function loadProducts() {
+            fetch('admin_ajax.php?action=get_products')
+                .then(response => response.json())
+                .then(data => {
                     if (data.success) {
                         displayProducts(data.products);
                     } else {
@@ -1158,6 +1210,9 @@ $orders = getOrdersForAdmin($db);
         function openProductModal(productId = null) {
             document.getElementById('productForm').reset();
             document.getElementById('productId').value = '';
+            document.getElementById('currentImage').value = '';
+            document.getElementById('imagePreview').style.display = 'none';
+            document.getElementById('currentImageContainer').innerHTML = '';
             document.getElementById('productModalTitle').textContent = productId ? 'Modifier le produit' : 'Ajouter un produit';
             
             if (productId) {
@@ -1174,8 +1229,20 @@ $orders = getOrdersForAdmin($db);
                                 document.getElementById('productPrice').value = product.price;
                                 document.getElementById('productStock').value = product.stock;
                                 document.getElementById('productWeight').value = product.weight || '';
-                                document.getElementById('productImageUrl').value = product.image_url || '';
+                                document.getElementById('currentImage').value = product.image_url || '';
                                 document.getElementById('productDescription').value = product.description || '';
+                                
+                                // Afficher l'image actuelle si elle existe
+                                if (product.image_url) {
+                                    const currentImageContainer = document.getElementById('currentImageContainer');
+                                    currentImageContainer.innerHTML = `
+                                        <p class="text-muted mb-2">Image actuelle:</p>
+                                        <img src="${product.image_url}" 
+                                             class="current-image" 
+                                             alt="Image actuelle"
+                                             onerror="this.style.display='none'">
+                                    `;
+                                }
                             }
                         }
                     });
@@ -1196,27 +1263,30 @@ $orders = getOrdersForAdmin($db);
             const productId = document.getElementById('productId').value;
             const action = productId ? 'update_product' : 'add_product';
             
-            if (productId) {
-                formData.append('id', productId);
+            // Vérifier si une image est requise (sauf pour modification si pas de nouvelle image)
+            const imageInput = document.getElementById('productImage');
+            if (!productId && !imageInput.files[0]) {
+                alert('Veuillez sélectionner une image pour le produit');
+                return;
             }
             
             fetch(`admin_ajax.php?action=${action}`, {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
                     alert('Produit ' + (productId ? 'modifié' : 'ajouté') + ' avec succès !');
                     const modal = bootstrap.Modal.getInstance(document.getElementById('productModal'));
                     modal.hide();
-                        loadProducts();
+                    loadProducts();
                     // Recharger la page pour mettre à jour les stats
                     if (document.getElementById('dashboard').classList.contains('active')) {
                         location.reload();
                     }
-                    } else {
-                        alert('Erreur: ' + data.message);
+                } else {
+                    alert('Erreur: ' + data.message);
                 }
             })
             .catch(error => {
