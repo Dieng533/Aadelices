@@ -189,12 +189,35 @@
             font-weight: 600;
         }
 
-        /* Style pour les produits */
+        /* Styles pour les produits dynamiques */
         .product-category {
             font-size: 0.9rem;
             font-weight: 600;
             margin-bottom: 5px;
             text-transform: uppercase;
+        }
+
+        .btn-add-to-cart {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-add-to-cart:hover {
+            background-color: #d40071;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 10px rgba(230, 0, 126, 0.2);
+        }
+
+        .btn-add-to-cart.btn-success {
+            background-color: #28a745 !important;
         }
     </style>
 </head>
@@ -287,7 +310,7 @@
                                 </div>
                                 <div>
                                     <p class="mb-0 fw-bold">Livraison rapide Dakar</p>
-                                    <p class="mb-0 small text-muted">À partir de 1000 FCFA</p>
+                                    <p class="mb-0 small text-muted">À partir de 500 FCFA</p>
                                 </div>
                             </div>
                         </div>
@@ -775,84 +798,115 @@
             }
         }
 
+        // ============================================
+        // GESTION DU PANIER - FONCTION PRINCIPALE
+        // ============================================
+
         // Fonction pour initialiser les événements d'ajout au panier
         function initAddToCartEvents() {
+            console.log('Initialisation des événements d\'ajout au panier...');
+            
             document.querySelectorAll('.btn-add-to-cart').forEach(button => {
-                button.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    
-                    const id = parseInt(this.dataset.id);
-                    const name = this.dataset.name;
-                    const price = parseInt(this.dataset.price);
-                    const image = this.dataset.image;
-                    const weight = this.dataset.weight;
-                    const productCard = this.closest('.product-card');
-                    
-                    // Extraire l'image si non fournie dans data-image
-                    let finalImage = image;
-                    if (!finalImage) {
-                        const imageElement = productCard.querySelector('.product-image');
-                        finalImage = imageElement ? imageElement.src : '';
-                    }
-                    
-                    // Extraire le poids si non fourni dans data-weight
-                    let finalWeight = weight;
-                    if (!finalWeight || finalWeight === 'undefined') {
-                        const weightElement = productCard.querySelector('.weight-badge');
-                        finalWeight = weightElement ? weightElement.textContent : '100g';
-                    }
-                    
-                    // Ajouter au panier
-                    const cart = JSON.parse(localStorage.getItem('cart')) || [];
-                    const existingItem = cart.find(item => item.id === id);
-                    
-                    if (existingItem) {
-                        existingItem.quantity++;
-                    } else {
-                        cart.push({
-                            id,
-                            name,
-                            price,
-                            quantity: 1,
-                            image: finalImage,
-                            weight: finalWeight
-                        });
-                    }
-                    
-                    localStorage.setItem('cart', JSON.stringify(cart));
-                    updateCartCount();
-                    
-                    // Animation
-                    this.classList.add('added-to-cart');
-                    const originalText = this.innerHTML;
-                    this.innerHTML = '<i class="fas fa-check me-2"></i>Ajouté';
-                    this.classList.add('btn-success');
-                    
-                    setTimeout(() => {
-                        this.innerHTML = originalText;
-                        this.classList.remove('btn-success');
-                        this.classList.remove('added-to-cart');
-                    }, 1500);
-                    
-                    console.log('Produit ajouté au panier:', { id, name, price });
-                });
+                // Supprimer les anciens événements pour éviter les doublons
+                button.removeEventListener('click', handleAddToCart);
+                // Ajouter le nouvel événement
+                button.addEventListener('click', handleAddToCart);
             });
+
+            console.log('Événements d\'ajout au panier initialisés:', document.querySelectorAll('.btn-add-to-cart').length, 'boutons');
+        }
+
+        // Fonction pour gérer l'ajout au panier
+        function handleAddToCart(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const button = e.currentTarget;
+            const id = parseInt(button.dataset.id);
+            const name = button.dataset.name;
+            const price = parseInt(button.dataset.price);
+            const image = button.dataset.image;
+            const weight = button.dataset.weight;
+            const productCard = button.closest('.product-card');
+            
+            console.log('Ajout au panier:', { id, name, price });
+            
+            // Extraire l'image si non fournie dans data-image
+            let finalImage = image;
+            if (!finalImage || finalImage === '') {
+                const imageElement = productCard.querySelector('.product-image');
+                finalImage = imageElement ? imageElement.src : '';
+            }
+            
+            // Extraire le poids si non fourni dans data-weight
+            let finalWeight = weight;
+            if (!finalWeight || finalWeight === '' || finalWeight === 'undefined') {
+                const weightElement = productCard.querySelector('.weight-badge');
+                finalWeight = weightElement ? weightElement.textContent : '100g';
+            }
+            
+            // Charger le panier actuel
+            let cart = JSON.parse(localStorage.getItem('cart')) || [];
+            
+            // Vérifier si l'article existe déjà dans le panier
+            const existingItemIndex = cart.findIndex(item => item.id === id);
+            
+            if (existingItemIndex !== -1) {
+                // Incrémenter la quantité
+                cart[existingItemIndex].quantity++;
+            } else {
+                // Ajouter un nouvel article
+                cart.push({
+                    id: id,
+                    name: name,
+                    price: price,
+                    quantity: 1,
+                    image: finalImage,
+                    weight: finalWeight
+                });
+            }
+            
+            // Sauvegarder le panier
+            localStorage.setItem('cart', JSON.stringify(cart));
+            
+            // Mettre à jour le compteur du panier
+            updateCartCount();
+            
+            // Animation de confirmation
+            button.classList.add('added-to-cart');
+            const originalText = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-check me-2"></i>Ajouté';
+            button.classList.add('btn-success');
+            
+            setTimeout(() => {
+                button.innerHTML = originalText;
+                button.classList.remove('btn-success');
+                button.classList.remove('added-to-cart');
+            }, 1500);
+            
+            // Effet visuel sur le panier
+            const cartIcon = document.querySelector('.cart-icon');
+            if (cartIcon) {
+                cartIcon.classList.add('added-to-cart');
+                setTimeout(() => {
+                    cartIcon.classList.remove('added-to-cart');
+                }, 500);
+            }
         }
 
         // ============================================
-        // GESTION DU PANIER
+        // GESTION DU COMPTEUR DU PANIER
         // ============================================
 
-        let cart = JSON.parse(localStorage.getItem('cart')) || [];
-
-        // Mettre à jour le compteur du panier
+        // Fonction pour mettre à jour le compteur du panier
         function updateCartCount() {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
             const count = cart.reduce((total, item) => total + item.quantity, 0);
             const cartCountElement = document.querySelector('.cart-count');
             if (cartCountElement) {
                 cartCountElement.textContent = count;
             }
-            localStorage.setItem('cart', JSON.stringify(cart));
+            console.log('Compteur panier mis à jour:', count, 'articles');
         }
 
         // ============================================
@@ -962,6 +1016,21 @@
                 const modal = new bootstrap.Modal(document.getElementById('adminLoginModal'));
                 modal.show();
             }
+
+            // Écouter les changements dans localStorage pour mettre à jour les produits
+            window.addEventListener('storage', function(e) {
+                if (e.key === 'aadeliceProducts') {
+                    console.log('Produits mis à jour dans localStorage, rechargement...');
+                    loadProductsFromStorage();
+                }
+                if (e.key === 'cart') {
+                    console.log('Panier mis à jour dans localStorage');
+                    updateCartCount();
+                }
+            });
+
+            // Rafraîchir le panier toutes les 2 secondes (pour les onglets multiples)
+            setInterval(updateCartCount, 2000);
         });
 
         // ============================================
@@ -974,6 +1043,10 @@
             console.log('Debug - Produits dans localStorage:', productsData);
             console.log('Debug - Nombre de produits:', productsData.products.length);
             console.log('Debug - Liste des produits:', productsData.products);
+            
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            console.log('Debug - Panier:', cart);
+            console.log('Debug - Nombre d\'articles dans le panier:', cart.length);
         }
 
         // Exposer la fonction de rechargement pour debug
@@ -983,6 +1056,16 @@
 
         // Exposer la fonction de debug
         window.debugProducts = debugProducts;
+
+        // Exposer la fonction d'ajout au panier pour debug
+        window.testAddToCart = function(productId) {
+            const button = document.querySelector(`.btn-add-to-cart[data-id="${productId}"]`);
+            if (button) {
+                button.click();
+            } else {
+                console.error('Bouton non trouvé pour le produit ID:', productId);
+            }
+        };
     </script>
 </body>
 

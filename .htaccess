@@ -1,0 +1,26 @@
+# Activer le module rewrite
+RewriteEngine On
+
+# Rediriger vers index.php si le fichier n'existe pas
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php?url=$1 [QSA,L]
+
+# Protéger les fichiers sensibles
+<FilesMatch "\.(sql|ini|log|sh)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+<Files "config">
+    Order allow,deny
+    Deny from all
+</Files>
+
+# Protéger contre les injections
+Options -Indexes
+
+# Sécurité HTTP
+Header set X-Content-Type-Options nosniff
+Header set X-Frame-Options SAMEORIGIN
+Header set X-XSS-Protection "1; mode=block"

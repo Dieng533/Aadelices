@@ -43,9 +43,6 @@
             background-color: #2196F3;
         }
 
-        .stat-icon.whatsapp {
-            background-color: #25D366;
-        }
 
         .weight-field {
             max-width: 150px;
@@ -88,19 +85,6 @@
             color: white;
         }
 
-        .whatsapp-order-btn {
-            background-color: #25D366;
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 5px;
-            font-size: 0.9rem;
-        }
-
-        .whatsapp-order-btn:hover {
-            background-color: #128C7E;
-            color: white;
-        }
 
         .order-status-badge {
             padding: 5px 10px;
@@ -231,6 +215,7 @@
             display: block;
         }
     </style>
+
 </head>
 
 <body>
@@ -288,13 +273,6 @@
                         <i class="fas fa-cog"></i>
                     </div>
                     <div class="admin-menu-text">Paramètres</div>
-                </a>
-
-                <a href="#whatsapp" class="admin-menu-item">
-                    <div class="admin-menu-icon">
-                        <i class="fab fa-whatsapp"></i>
-                    </div>
-                    <div class="admin-menu-text">Gestion WhatsApp</div>
                 </a>
 
                 <div class="mt-5 pt-3 border-top border-secondary">
@@ -378,17 +356,6 @@
                             </div>
                         </div>
 
-                        <div class="stat-card">
-                            <div class="stat-icon whatsapp">
-                                <i class="fab fa-whatsapp"></i>
-                            </div>
-                            <div class="stat-value">12</div>
-                            <div class="stat-label">Commandes WhatsApp</div>
-                            <div class="stat-change positive">
-                                <i class="fas fa-arrow-up"></i>
-                                <span>25%</span>
-                            </div>
-                        </div>
                     </div>
 
                     <div class="admin-table-container">
@@ -755,11 +722,7 @@
                                             value="Dakar Ouest Foire, Sénégal" required>
                                     </div>
 
-                                    <div class="col-md-6 mb-3">
-                                        <label for="shopWhatsApp" class="form-label">Numéro WhatsApp *</label>
-                                        <input type="tel" class="form-control-custom customer-phone" id="shopWhatsApp"
-                                            value="+221771635858" required>
-                                    </div>
+                                    <!-- Champ WhatsApp supprimé -->
 
                                     <div class="col-md-6 mb-3">
                                         <label for="shopEmail" class="form-label">Email</label>
@@ -821,14 +784,7 @@
                     </div>
                 </section>
 
-                <!-- Gestion WhatsApp -->
-                <section id="whatsapp" class="admin-section d-none">
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h2>Gestion WhatsApp</h2>
-                        <button class="btn btn-primary-custom" id="testWhatsAppBtn">
-                            <i class="fab fa-whatsapp me-2"></i>Tester WhatsApp
-                        </button>
-                    </div>
+                <!-- Section supprimée : Gestion WhatsApp -->
 
                     <div class="row">
                         <div class="col-md-6 mb-4">
@@ -896,7 +852,7 @@ Nous vous contacterons pour la livraison. 📦
                 this.initImageUpload();
                 this.initOrderHandlers();
                 this.initSettings();
-                this.initWhatsApp();
+                // Section WhatsApp supprimée
 
                 // Charger les données
                 this.loadProducts();
@@ -1162,25 +1118,7 @@ Nous vous contacterons pour la livraison. 📦
                 });
             }
 
-            initWhatsApp() {
-                // Tester WhatsApp
-                document.getElementById('testWhatsAppBtn').addEventListener('click', () => {
-                    window.open('https://wa.me/221771635858?text=Test%20admin%20Aadelice', '_blank');
-                });
-
-                // Copier le lien
-                document.getElementById('copyWhatsAppBtn').addEventListener('click', () => {
-                    const link = document.getElementById('whatsappLink');
-                    link.select();
-                    document.execCommand('copy');
-                    this.showNotification('Lien WhatsApp copié !');
-                });
-
-                // Sauvegarder les messages
-                document.getElementById('saveMessagesBtn').addEventListener('click', () => {
-                    this.saveWhatsAppMessages();
-                });
-            }
+            // Fonction initWhatsApp supprimée - WhatsApp retiré du projet
 
             showSection(sectionId) {
                 // Masquer toutes les sections
@@ -1280,14 +1218,26 @@ Nous vous contacterons pour la livraison. 📦
                 this.loadOrderDetail(orderId);
             }
 
+            // Remplacez la fonction loadProducts() par cette version corrigée :
             loadProducts() {
                 console.log('Chargement des produits depuis localStorage...');
 
-                // Charger depuis localStorage
-                const productsData = JSON.parse(localStorage.getItem('aadeliceProducts')) || { products: [] };
+                // CHANGEMENT IMPORTANT : Structure de données cohérente
+                let productsData = JSON.parse(localStorage.getItem('aadeliceProducts'));
+
+                // Si pas de données ou mauvais format, initialiser correctement
+                if (!productsData || !productsData.products) {
+                    productsData = { products: [] };
+                    localStorage.setItem('aadeliceProducts', JSON.stringify(productsData));
+                }
+
                 const products = productsData.products || [];
 
-                console.log('Produits chargés:', products.length);
+                console.log('Produits chargés:', products.length, 'produits');
+                console.log('Structure complète:', productsData);
+
+                // DEBUG : Vérifiez ce qui est dans localStorage
+                console.log('LocalStorage raw:', localStorage.getItem('aadeliceProducts'));
 
                 // Mettre à jour le compteur dans le dashboard
                 document.getElementById('totalProductsCount').textContent = products.length;
@@ -1297,16 +1247,16 @@ Nous vous contacterons pour la livraison. 📦
                 if (tableBody) {
                     if (products.length === 0) {
                         tableBody.innerHTML = `
-                            <tr>
-                                <td colspan="9" class="text-center py-4">
-                                    <i class="fas fa-candy-cane fa-2x text-muted mb-3"></i>
-                                    <p class="text-muted">Aucun produit ajouté</p>
-                                    <button class="btn btn-primary-custom btn-sm" id="addFirstProductBtn">
-                                        <i class="fas fa-plus me-2"></i>Ajouter un produit
-                                    </button>
-                                </td>
-                            </tr>
-                        `;
+                <tr>
+                    <td colspan="9" class="text-center py-4">
+                        <i class="fas fa-candy-cane fa-2x text-muted mb-3"></i>
+                        <p class="text-muted">Aucun produit ajouté</p>
+                        <button class="btn btn-primary-custom btn-sm" id="addFirstProductBtn">
+                            <i class="fas fa-plus me-2"></i>Ajouter un produit
+                        </button>
+                    </td>
+                </tr>
+            `;
 
                         // Ajouter l'événement au bouton
                         document.getElementById('addFirstProductBtn')?.addEventListener('click', () => {
@@ -1315,61 +1265,75 @@ Nous vous contacterons pour la livraison. 📦
                     } else {
                         let html = '';
                         products.forEach(product => {
+                            // S'assurer que le produit a toutes les propriétés nécessaires
+                            const safeProduct = {
+                                id: product.id || 0,
+                                name: product.name || 'Produit sans nom',
+                                category: product.category || 'Divers',
+                                price: product.price || 0,
+                                stock: product.stock || 0,
+                                weight: product.weight || '100g',
+                                image: product.image || 'https://via.placeholder.com/60',
+                                rating: product.rating || 4,
+                                reviews: product.reviews || 0,
+                                description: product.description || ''
+                            };
+
                             // Déterminer le statut du stock
                             let stockStatus = 'status-active';
                             let stockText = 'En stock';
 
-                            if (product.stock === 0) {
+                            if (safeProduct.stock === 0) {
                                 stockStatus = 'status-inactive';
                                 stockText = 'Rupture';
-                            } else if (product.stock < 10) {
+                            } else if (safeProduct.stock < 10) {
                                 stockStatus = 'status-low';
                                 stockText = 'Stock faible';
                             }
 
                             // Déterminer la classe de catégorie
                             let categoryClass = 'category-sucres';
-                            if (product.category === 'Sans sucre') categoryClass = 'category-sans-sucre';
-                            else if (product.category === 'Box') categoryClass = 'category-box';
-                            else if (product.category === 'Boisson') categoryClass = 'category-boisson';
-                            else if (product.category === 'Divers') categoryClass = 'category-divers';
+                            if (safeProduct.category === 'Sans sucre') categoryClass = 'category-sans-sucre';
+                            else if (safeProduct.category === 'Box') categoryClass = 'category-box';
+                            else if (safeProduct.category === 'Boisson') categoryClass = 'category-boisson';
+                            else if (safeProduct.category === 'Divers') categoryClass = 'category-divers';
 
                             html += `
-                                <tr>
-                                    <td>#${product.id.toString().padStart(3, '0')}</td>
-                                    <td>
-                                        <img src="${product.image || 'https://via.placeholder.com/60'}" 
-                                             alt="${product.name}" 
-                                             class="product-thumbnail"
-                                             onerror="this.src='https://via.placeholder.com/60'">
-                                    </td>
-                                    <td>
-                                        <strong>${product.name}</strong>
-                                        <div class="product-weight">${product.weight || '100g'}</div>
-                                    </td>
-                                    <td>
-                                        <span class="category-badge ${categoryClass}">
-                                            ${product.category}
-                                        </span>
-                                    </td>
-                                    <td>${(product.price || 0).toLocaleString('fr-FR')} FCFA</td>
-                                    <td>${product.weight || '100g'}</td>
-                                    <td>${product.stock || 0}</td>
-                                    <td>
-                                        <span class="status-badge ${stockStatus}">${stockText}</span>
-                                    </td>
-                                    <td>
-                                        <div class="action-buttons">
-                                            <button class="btn-action btn-edit edit-product" data-id="${product.id}">
-                                                <i class="fas fa-edit"></i>
-                                            </button>
-                                            <button class="btn-action btn-delete delete-product" data-id="${product.id}">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            `;
+                    <tr>
+                        <td>#${safeProduct.id.toString().padStart(3, '0')}</td>
+                        <td>
+                            <img src="${safeProduct.image}" 
+                                 alt="${safeProduct.name}" 
+                                 class="product-thumbnail"
+                                 onerror="this.src='https://via.placeholder.com/60'">
+                        </td>
+                        <td>
+                            <strong>${safeProduct.name}</strong>
+                            <div class="product-weight">${safeProduct.weight}</div>
+                        </td>
+                        <td>
+                            <span class="category-badge ${categoryClass}">
+                                ${safeProduct.category}
+                            </span>
+                        </td>
+                        <td>${safeProduct.price.toLocaleString('fr-FR')} FCFA</td>
+                        <td>${safeProduct.weight}</td>
+                        <td>${safeProduct.stock}</td>
+                        <td>
+                            <span class="status-badge ${stockStatus}">${stockText}</span>
+                        </td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn-action btn-edit edit-product" data-id="${safeProduct.id}">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn-action btn-delete delete-product" data-id="${safeProduct.id}">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
                         });
                         tableBody.innerHTML = html;
 
@@ -1381,6 +1345,7 @@ Nous vous contacterons pour la livraison. 📦
                 // Afficher les produits récents dans le dashboard
                 this.displayRecentProducts(products.slice(0, 5));
             }
+
 
             displayRecentProducts(products) {
                 const container = document.getElementById('recentProductsTable');
@@ -1601,39 +1566,362 @@ Nous vous contacterons pour la livraison. 📦
                 }
             }
 
+            // Dans la classe AdminManagerDakar, modifiez la fonction loadOrders() :
+
             loadOrders() {
-                // Simuler le chargement des commandes
-                setTimeout(() => {
-                    document.getElementById('recentOrdersTable').innerHTML = `
-                        <table class="admin-table">
-                            <thead>
-                                <tr>
-                                    <th>N° Commande</th>
-                                    <th>Client</th>
-                                    <th>Date</th>
-                                    <th>Montant</th>
-                                    <th>Statut</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>#ADL-001</td>
-                                    <td>Moussa Diop</td>
-                                    <td>15/12/2023</td>
-                                    <td>15.500 FCFA</td>
-                                    <td><span class="order-status-badge status-confirmed">Confirmée</span></td>
-                                </tr>
-                                <tr>
-                                    <td>#ADL-002</td>
-                                    <td>Fatou Ndiaye</td>
-                                    <td>14/12/2023</td>
-                                    <td>8.200 FCFA</td>
-                                    <td><span class="order-status-badge status-delivered">Livrée</span></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    `;
-                }, 500);
+                console.log('Chargement des commandes depuis localStorage...');
+
+                // Charger les commandes depuis localStorage
+                const ordersData = JSON.parse(localStorage.getItem('aadeliceOrders')) || { orders: [] };
+                const orders = ordersData.orders || [];
+
+                console.log('Commandes chargées:', orders.length);
+
+                // Afficher dans le tableau des commandes
+                const tableBody = document.getElementById('ordersTableBody');
+                const recentTable = document.getElementById('recentOrdersTable');
+
+                if (orders.length === 0) {
+                    if (tableBody) {
+                        tableBody.innerHTML = `
+                <tr>
+                    <td colspan="7" class="text-center py-4">
+                        <i class="fas fa-shopping-cart fa-2x text-muted mb-3"></i>
+                        <p class="text-muted">Aucune commande enregistrée</p>
+                    </td>
+                </tr>
+            `;
+                    }
+
+                    if (recentTable) {
+                        recentTable.innerHTML = `
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Aucune commande récente
+                </div>
+            `;
+                    }
+
+                    return;
+                }
+
+                // Afficher les commandes récentes dans le dashboard
+                this.displayRecentOrders(orders.slice(0, 5));
+
+                // Afficher toutes les commandes dans la page commandes
+                if (tableBody) {
+                    let html = '';
+                    orders.forEach(order => {
+                        // Format de date
+                        const orderDate = new Date(order.date);
+                        const formattedDate = orderDate.toLocaleDateString('fr-FR', {
+                            day: '2-digit',
+                            month: '2-digit',
+                            year: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        });
+
+                        // Statut de la commande
+                        let statusClass = 'status-pending';
+                        let statusText = 'En attente';
+
+                        if (order.status === 'confirmed') {
+                            statusClass = 'status-confirmed';
+                            statusText = 'Confirmée';
+                        } else if (order.status === 'delivered') {
+                            statusClass = 'status-delivered';
+                            statusText = 'Livrée';
+                        } else if (order.status === 'cancelled') {
+                            statusClass = 'status-cancelled';
+                            statusText = 'Annulée';
+                        }
+
+                        html += `
+                <tr>
+                    <td>
+                        <strong>${order.id}</strong>
+                    </td>
+                    <td>${order.customer.firstName} ${order.customer.lastName}</td>
+                    <td class="customer-phone">${order.customer.phone}</td>
+                    <td>${formattedDate}</td>
+                    <td>${order.summary.total.toLocaleString('fr-FR')} FCFA</td>
+                    <td>
+                        <span class="order-status-badge ${statusClass}">${statusText}</span>
+                    </td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-action btn-view view-order" data-id="${order.id}" title="Voir les détails">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn-action btn-edit change-status" data-id="${order.id}" title="Changer le statut">
+                                <i class="fas fa-exchange-alt"></i>
+                            </button>
+                            <a href="tel:${order.customer.phone}" class="btn-action btn-primary" title="Contacter par téléphone">
+                                <i class="fas fa-phone"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+            `;
+                    });
+                    tableBody.innerHTML = html;
+
+                    // Ajouter les événements aux boutons
+                    this.addOrderEvents();
+                }
+            }
+
+            // Fonction pour afficher les commandes récentes
+            displayRecentOrders(orders) {
+                const container = document.getElementById('recentOrdersTable');
+                if (!container) return;
+
+                if (orders.length === 0) {
+                    container.innerHTML = '<p class="text-center text-muted py-4">Aucune commande récente</p>';
+                    return;
+                }
+
+                let html = `
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>N° Commande</th>
+                    <th>Client</th>
+                    <th>Date</th>
+                    <th>Montant</th>
+                    <th>Statut</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+
+                orders.forEach(order => {
+                    const orderDate = new Date(order.date);
+                    const formattedDate = orderDate.toLocaleDateString('fr-FR', {
+                        day: '2-digit',
+                        month: '2-digit'
+                    });
+
+                    let statusClass = 'status-pending';
+                    let statusText = 'En attente';
+
+                    if (order.status === 'confirmed') {
+                        statusClass = 'status-confirmed';
+                        statusText = 'Confirmée';
+                    } else if (order.status === 'delivered') {
+                        statusClass = 'status-delivered';
+                        statusText = 'Livrée';
+                    } else if (order.status === 'cancelled') {
+                        statusClass = 'status-cancelled';
+                        statusText = 'Annulée';
+                    }
+
+                    html += `
+            <tr>
+                <td>${order.id}</td>
+                <td>${order.customer.firstName} ${order.customer.lastName.charAt(0)}.</td>
+                <td>${formattedDate}</td>
+                <td>${order.summary.total.toLocaleString('fr-FR')} FCFA</td>
+                <td><span class="order-status-badge ${statusClass}">${statusText}</span></td>
+            </tr>
+        `;
+                });
+
+                html += `
+            </tbody>
+        </table>
+    `;
+
+                container.innerHTML = html;
+            }
+
+            // Fonction pour ajouter les événements aux commandes
+            addOrderEvents() {
+                // Voir les détails d'une commande
+                document.querySelectorAll('.view-order').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const orderId = e.currentTarget.getAttribute('data-id');
+                        this.showOrderDetail(orderId);
+                    });
+                });
+
+                // Changer le statut d'une commande
+                document.querySelectorAll('.change-status').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const orderId = e.currentTarget.getAttribute('data-id');
+                        this.changeOrderStatus(orderId);
+                    });
+                });
+            }
+
+            // Fonction pour afficher les détails d'une commande
+            showOrderDetail(orderId) {
+                const ordersData = JSON.parse(localStorage.getItem('aadeliceOrders')) || { orders: [] };
+                const order = ordersData.orders.find(o => o.id === orderId);
+
+                if (!order) {
+                    alert('Commande non trouvée');
+                    return;
+                }
+
+                const orderDate = new Date(order.date);
+                const formattedDate = orderDate.toLocaleDateString('fr-FR', {
+                    day: '2-digit',
+                    month: 'long',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+
+                let statusClass = 'status-pending';
+                let statusText = 'En attente';
+
+                if (order.status === 'confirmed') {
+                    statusClass = 'status-confirmed';
+                    statusText = 'Confirmée';
+                } else if (order.status === 'delivered') {
+                    statusClass = 'status-delivered';
+                    statusText = 'Livrée';
+                } else if (order.status === 'cancelled') {
+                    statusClass = 'status-cancelled';
+                    statusText = 'Annulée';
+                }
+
+                // Générer le HTML des articles
+                const itemsHtml = order.items.map(item => `
+        <div class="order-item-detail">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="mb-1">${item.name}</h6>
+                    <small class="text-muted">${item.weight || '100g'}</small>
+                </div>
+                <div class="text-end">
+                    <div>${item.quantity} x ${item.price.toLocaleString('fr-FR')} FCFA</div>
+                    <div class="fw-bold">${item.total.toLocaleString('fr-FR')} FCFA</div>
+                </div>
+            </div>
+        </div>
+    `).join('');
+
+                document.getElementById('orderDetailContent').innerHTML = `
+        <div class="order-detail-container">
+            <div class="order-header mb-4">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">Commande ${order.id}</h4>
+                    <span class="order-status-badge ${statusClass}">${statusText}</span>
+                </div>
+                <p class="text-muted mb-0">Passée le ${formattedDate}</p>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="customer-info mb-4">
+                        <h5><i class="fas fa-user me-2"></i>Client</h5>
+                        <p class="mb-1"><strong>${order.customer.firstName} ${order.customer.lastName}</strong></p>
+                        <p class="mb-1"><i class="fas fa-phone me-2"></i>${order.customer.phone}</p>
+                        <p class="mb-1"><i class="fas fa-envelope me-2"></i>${order.customer.email}</p>
+                        <p class="mb-0"><i class="fas fa-map-marker-alt me-2"></i>${order.customer.address}, ${order.customer.quartier}</p>
+                        <p class="mb-0"><i class="fas fa-truck me-2"></i>Zone: ${order.customer.zone}</p>
+                        ${order.customer.instructions ? `<p class="mt-2"><i class="fas fa-info-circle me-2"></i><strong>Instructions:</strong> ${order.customer.instructions}</p>` : ''}
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="payment-info mb-4">
+                        <h5><i class="fas fa-credit-card me-2"></i>Paiement</h5>
+                        <p><strong>Mode:</strong> ${order.paymentMethod}</p>
+                        <p><strong>Statut:</strong> ${order.status === 'delivered' ? 'Payé' : 'À payer'}</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="order-items mb-4">
+                <h5><i class="fas fa-box me-2"></i>Articles (${order.items.length})</h5>
+                <div class="order-items-list">
+                    ${itemsHtml}
+                </div>
+            </div>
+            
+            <div class="order-summary">
+                <h5><i class="fas fa-receipt me-2"></i>Récapitulatif</h5>
+                <div class="summary-row">
+                    <span>Sous-total:</span>
+                    <span>${order.summary.subtotal.toLocaleString('fr-FR')} FCFA</span>
+                </div>
+                <div class="summary-row">
+                    <span>Livraison:</span>
+                    <span>${order.summary.shipping.toLocaleString('fr-FR')} FCFA</span>
+                </div>
+                <div class="summary-row">
+                    <span>Réduction:</span>
+                    <span>-${order.summary.discount.toLocaleString('fr-FR')} FCFA</span>
+                </div>
+                <div class="summary-row total">
+                    <span>TOTAL:</span>
+                    <span>${order.summary.total.toLocaleString('fr-FR')} FCFA</span>
+                </div>
+            </div>
+            
+            <div class="order-actions mt-4">
+                <button class="btn btn-primary-custom me-2" onclick="adminManager.changeOrderStatus('${order.id}')">
+                    <i class="fas fa-exchange-alt me-2"></i>Changer le statut
+                </button>
+                <a href="https://wa.me/221${order.customer.phone.replace(/\D/g, '')}" target="_blank" class="btn btn-success me-2">
+                    <i class="fas fa-phone me-2"></i>Contacter
+                </a>
+                <button class="btn btn-outline-primary-custom" onclick="adminManager.showOrderList()">
+                    <i class="fas fa-arrow-left me-2"></i>Retour
+                </button>
+            </div>
+        </div>
+    `;
+
+                this.showSection('orderDetailSection');
+                document.getElementById('orderDetailTitle').textContent = `Commande #${order.id}`;
+                document.querySelector('.admin-header h1').textContent = `Détail commande #${order.id}`;
+            }
+
+            // Fonction pour changer le statut d'une commande
+            changeOrderStatus(orderId) {
+                const ordersData = JSON.parse(localStorage.getItem('aadeliceOrders')) || { orders: [] };
+                const orderIndex = ordersData.orders.findIndex(o => o.id === orderId);
+
+                if (orderIndex === -1) {
+                    alert('Commande non trouvée');
+                    return;
+                }
+
+                const currentStatus = ordersData.orders[orderIndex].status;
+                const statusOptions = [
+                    { value: 'pending', label: 'En attente' },
+                    { value: 'confirmed', label: 'Confirmée' },
+                    { value: 'delivered', label: 'Livrée' },
+                    { value: 'cancelled', label: 'Annulée' }
+                ];
+
+                let statusOptionsHtml = '';
+                statusOptions.forEach(option => {
+                    const selected = option.value === currentStatus ? 'selected' : '';
+                    statusOptionsHtml += `<option value="${option.value}" ${selected}>${option.label}</option>`;
+                });
+
+                const newStatus = prompt(`Changer le statut de la commande ${orderId}:\n\n${statusOptionsHtml.replace(/<option/g, '\n<option')}`, currentStatus);
+
+                if (newStatus && statusOptions.some(opt => opt.value === newStatus)) {
+                    ordersData.orders[orderIndex].status = newStatus;
+                    localStorage.setItem('aadeliceOrders', JSON.stringify(ordersData));
+
+                    // Recharger les commandes
+                    this.loadOrders();
+
+                    // Si on est sur le détail de la commande, rafraîchir
+                    if (this.currentOrderId === orderId) {
+                        this.showOrderDetail(orderId);
+                    }
+
+                    this.showNotification(`Statut changé à: ${statusOptions.find(opt => opt.value === newStatus).label}`);
+                }
             }
 
             filterOrders(status) {
@@ -1664,15 +1952,13 @@ Nous vous contacterons pour la livraison. 📦
                 document.getElementById('shopName').value = settings.shopName;
                 document.getElementById('shopPhone').value = settings.shopPhone;
                 document.getElementById('shopAddress').value = settings.shopAddress;
-                document.getElementById('shopWhatsApp').value = settings.shopWhatsApp;
+                // Champ WhatsApp supprimé
                 document.getElementById('shopEmail').value = settings.shopEmail;
                 document.getElementById('freeShippingMin').value = settings.freeShippingMin;
                 document.getElementById('deliveryCost').value = settings.deliveryCost;
                 document.getElementById('adminUsername').value = settings.adminUsername;
 
-                // Charger les messages WhatsApp
-                document.getElementById('welcomeMessage').value = settings.whatsappMessages.welcome;
-                document.getElementById('orderConfirmMessage').value = settings.whatsappMessages.orderConfirm;
+                // Messages WhatsApp supprimés
             }
 
             getDefaultSettings() {
@@ -1680,16 +1966,11 @@ Nous vous contacterons pour la livraison. 📦
                     shopName: "Aadelice Dakar",
                     shopPhone: "+221771635858",
                     shopAddress: "Dakar Ouest Foire, Sénégal",
-                    shopWhatsApp: "+221771635858",
                     shopEmail: "",
                     freeShippingMin: 10000,
                     deliveryCost: 1500,
                     adminUsername: "aadelice_admin",
-                    adminPassword: "dakar_2023",
-                    whatsappMessages: {
-                        welcome: "Bonjour ! 👋 \nBienvenue chez Aadelice Dakar ! 🍬\nJe suis là pour vous aider avec vos commandes de bonbons.\nQue désirez-vous aujourd'hui ? 😊",
-                        orderConfirm: "✅ Commande confirmée !\nMerci pour votre commande chez Aadelice Dakar.\nVotre commande n°{ORDER_ID} d'un montant de {TOTAL} FCFA a été enregistrée.\nElle sera préparée et livrée sous 24h.\nNous vous contacterons pour la livraison. 📦"
-                    }
+                    adminPassword: "dakar_2023"
                 };
             }
 
@@ -1698,23 +1979,17 @@ Nous vous contacterons pour la livraison. 📦
                     shopName: document.getElementById('shopName').value,
                     shopPhone: document.getElementById('shopPhone').value,
                     shopAddress: document.getElementById('shopAddress').value,
-                    shopWhatsApp: document.getElementById('shopWhatsApp').value,
                     shopEmail: document.getElementById('shopEmail').value,
                     freeShippingMin: parseInt(document.getElementById('freeShippingMin').value),
                     deliveryCost: parseInt(document.getElementById('deliveryCost').value),
                     adminUsername: document.getElementById('adminUsername').value,
-                    adminPassword: "dakar_2023",
-                    whatsappMessages: {
-                        welcome: document.getElementById('welcomeMessage').value,
-                        orderConfirm: document.getElementById('orderConfirmMessage').value
-                    }
+                    adminPassword: "dakar_2023"
                 };
 
                 localStorage.setItem('aadeliceSettings', JSON.stringify(settings));
                 this.showNotification('Paramètres enregistrés avec succès !');
 
-                // Mettre à jour le lien WhatsApp
-                document.getElementById('whatsappLink').value = `https://wa.me/221${settings.shopWhatsApp.replace(/\D/g, '')}`;
+                // Lien WhatsApp supprimé
             }
 
             resetSettings() {
@@ -1724,17 +1999,7 @@ Nous vous contacterons pour la livraison. 📦
                 this.showNotification('Paramètres réinitialisés avec succès !');
             }
 
-            saveWhatsAppMessages() {
-                const settings = JSON.parse(localStorage.getItem('aadeliceSettings')) || this.getDefaultSettings();
-
-                settings.whatsappMessages = {
-                    welcome: document.getElementById('welcomeMessage').value,
-                    orderConfirm: document.getElementById('orderConfirmMessage').value
-                };
-
-                localStorage.setItem('aadeliceSettings', JSON.stringify(settings));
-                this.showNotification('Messages WhatsApp enregistrés !');
-            }
+            // Fonction saveWhatsAppMessages supprimée
 
             exportOrders() {
                 this.showNotification('Export des commandes démarré !');
